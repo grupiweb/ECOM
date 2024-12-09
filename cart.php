@@ -1,6 +1,14 @@
 <?php
 include('includes/connect.php');
-include('functions/common_function.php')
+include('functions/common_function.php');
+
+session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -9,7 +17,7 @@ include('functions/common_function.php')
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>E-Commerce Website - Cart </title>
+  <title>E-Commerce Website - Cart</title>
   <!-- bootstrap CSS link -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -19,7 +27,6 @@ include('functions/common_function.php')
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- css file -->
   <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
@@ -55,12 +62,9 @@ include('functions/common_function.php')
         </div>
       </div>
     </nav>
-      <!-- thirrja e cart() -->
-       <?php
-       cart();
-       ?>
+    <?php cart(); ?>
 
-    <nav class="nabar navbar-expand-lg navbar-dark bg-secondary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
       <ul class="navbar-nav me-auto">
         <li class="nav-item ms-3">
           <a class="nav-link" href="#">Guest</a>
@@ -77,104 +81,74 @@ include('functions/common_function.php')
     </div>
 
     <!-- Cart Table -->
-     <!-- Cart Table -->
-<div class="container">
-    <div class="row">
+    <div class="container">
+      <div class="row">
         <table class="table table-bordered text-center">
-            <thead>
-                <tr>
-                    <th>Product Image</th>
-                    <th>Product Name</th>
-                    <th>Quantity</th>
-                    <th>Total Price</th>
-                    <th>Remove</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                // Start session and validate user
-                if (session_status() === PHP_SESSION_NONE) {
-                    session_start();
-                }
+          <thead>
+            <tr>
+              <th>Product Image</th>
+              <th>Product Name</th>
+              <th>Quantity</th>
+              <th>Total Price</th>
+              <th>Remove</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+            $user_id = $_SESSION['user_id'];
+            global $con;
 
-                if (!isset($_SESSION['user_id'])) {
-                    echo "<tr><td colspan='5'>Your cart is empty.</td></tr>";
-                    exit;
-                }
+            if (!$con) {
+                die("Database connection failed: " . mysqli_connect_error());
+            }
 
-                $user_id = $_SESSION['user_id'];
-                global $con;
+            $cart_query = "SELECT * FROM `cart` WHERE user_id = '$user_id'";
+            $cart_result = mysqli_query($con, $cart_query);
 
-                // Ensure connection is valid
-                if (!$con) {
-                    die("Database connection failed: " . mysqli_connect_error());
-                }
+            if (!$cart_result || mysqli_num_rows($cart_result) === 0) {
+                echo "<tr><td colspan='5'>Your cart is empty.</td></tr>";
+            } else {
+                $cart_total = 0;
 
-                // Fetch cart items
-                $cart_query = "SELECT * FROM `cart` WHERE user_id = '$user_id'";
-                $cart_result = mysqli_query($con, $cart_query);
+                while ($cart_row = mysqli_fetch_array($cart_result)) {
+                    $produkt_id = $cart_row['produkt_id'];
+                    $quantity = $cart_row['quantity'];
 
-                if (!$cart_result || mysqli_num_rows($cart_result) === 0) {
-                    echo "<tr><td colspan='5'>Your cart is empty.</td></tr>";
-                } else {
-                    $cart_total = 0; // Initialize total
+                    $product_query = "SELECT produkt_name, produkt_image1, produkt_price FROM `produkt` WHERE produkt_id = '$produkt_id'";
+                    $product_result = mysqli_query($con, $product_query);
 
-                    while ($cart_row = mysqli_fetch_array($cart_result)) {
-                        $produkt_id = $cart_row['produkt_id'];
-                        $quantity = $cart_row['quantity'];
+                    if ($product_row = mysqli_fetch_array($product_result)) {
+                        $produkt_name = $product_row['produkt_name'];
+                        $produkt_image = $product_row['produkt_image1'];
+                        $produkt_price = $product_row['produkt_price'];
+                        $total_price = $produkt_price * $quantity;
+                        $cart_total += $total_price;
 
-                        // Fetch product details
-                        $product_query = "SELECT produkt_name, produkt_image1, produkt_price FROM `produkt` WHERE produkt_id = '$produkt_id'";
-                        $product_result = mysqli_query($con, $product_query);
-
-                        if ($product_row = mysqli_fetch_array($product_result)) {
-                            $produkt_name = $product_row['produkt_name'];
-                            $produkt_image = $product_row['produkt_image1'];
-                            $produkt_price = $product_row['produkt_price'];
-                            $total_price = $produkt_price * $quantity;
-                            $cart_total += $total_price; // Add to cart total
-
-                            // Display cart row
-                            echo "
-                                <tr>
-                                    <td>
-                                        <img src='admin_manage/produkt_image/$produkt_image' alt='$produkt_name' width='100' height='100'>
-                                    </td>
-                                    <td>$produkt_name</td>
-                                    <td>
-                                        <div class='quantity-box'>
-                                            <button class='quantity-btn decrease' data-product-id='$produkt_id'>-</button>
-                                            <input type='number' value='$quantity' min='1' class='quantity-input' data-product-id='$produkt_id' readonly>
-                                            <button class='quantity-btn increase' data-product-id='$produkt_id'>+</button>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class='price' data-product-id='$produkt_id'>$$total_price</span>
-                                    </td>
-                                    <td>
-                                        <a href='remove.php?produkt_id=<?php echo $produkt_id; ?>' class='remove-btn'>
-    <button class='btn btn-danger'>Remove</button>
-</a>
-                                    </td>
-                                </tr>
-                            ";
-                        }
+                        echo "
+                          <tr>
+                            <td><img src='admin_manage/produkt_image/$produkt_image' alt='$produkt_name' width='100' height='100'></td>
+                            <td>$produkt_name</td>
+                            <td>
+                              <div class='quantity-box'>
+                                <button class='quantity-btn decrease' data-product-id='$produkt_id'>-</button>
+                                <input type='number' value='$quantity' min='1' class='quantity-input' data-product-id='$produkt_id' readonly>
+                                <button class='quantity-btn increase' data-product-id='$produkt_id'>+</button>
+                              </div>
+                            </td>
+                            <td><span class='price' data-product-id='$produkt_id'>$$total_price</span></td>
+                            <td>
+                              <a href='remove.php?produkt_id=$produkt_id' class='remove-btn'>
+                                <button class='btn btn-danger'>Remove</button>
+                              </a>
+                            </td>
+                          </tr>
+                        ";
                     }
                 }
-                ?>
-            </tbody>
+            }
+            ?>
+          </tbody>
         </table>
-        
-        <div class="d-flex mb-3">
-    <h4 class="px-3">Totali: <strong class="text-info">$<?php echo number_format($cart_total, 2); ?></strong></h4>
-    <a href="index.php"><button class="bg-info border-0 px-3 py-2">Continue Shopping</button></a>
-    <a href="checkout.php"><button class="bg-secondary mx-3 px-3 py-2 border-0">Checkout</button></a>
-</div>
-        </div>
-     </div>
-
-
-            </table>
 
             <script>
     // Event listeners for up and down arrows
