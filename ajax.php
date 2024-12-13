@@ -1,5 +1,6 @@
 <?php
-include('includes/connect.php'); // Include the database connection file
+include_once('includes/connect.php'); // ndryshim sepse nuk eshte eficente te besh vetem include
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'register') {
     global $con;
@@ -191,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     // nese eshte user location eshte profili 
     $location = "index.php";
     if ($row['role_id'] != 1){
-        $location = "./admin_manage/index.php";   // nese kemi te bejme me nje admin, per momentin nuk kemi nje users.php 
+        $location = "./admin_manage/index.php";   
     }
 
     http_response_code(200);
