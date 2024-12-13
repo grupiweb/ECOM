@@ -1,7 +1,10 @@
 <?php
 
 session_start();
-$_SESSION['username']="Khanam";
-$_SESSION['password']="coding";
-echo "Session data is saved"
+if(isset($_SESSION['id'])){
+    echo "User ID: " . $_SESSION['id'];
+}else {
+    // If the session variable is not set, print a message
+    echo "No user is logged in.";
+}
 ?>

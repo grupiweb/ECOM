@@ -31,10 +31,11 @@
     function register_user(event) {
         event.preventDefault(); // Prevent form submission
 
-        var name = $("#user_username").val();
-        var email = $("#user_email").val();
-        var password = $("#user_password").val();
-        var confirmPassword = $("#conf_user_password").val();
+        var name = $("#username").val();
+        var email = $("#email").val();
+        var password = $("#password").val();
+        var confirmPassword = $("#conf_password").val();
+        var termsAccepted = $("#terms").is(":checked");
 
         var nameRegex = /^[a-zA-Z ]{3,20}$/;
         var passwordRegex = /^[a-zA-Z0-9-_ ]{4,}$/;
@@ -42,51 +43,59 @@
         var error = 0;
         
         // Validate name
-        if (!nameRegex.test(name)) {
-            $("#user_username").addClass('error');
-            $("#nameError").text("Emri vetem karaktere, minimumi 3");
-            error++;
-        } else {
-            $("#user_username").removeClass('error');
-            $("#nameError").text("");
-        }
+if (!nameRegex.test(name)) {
+    $("#username").addClass("error"); // Add error styling to the input
+    $("#usernameError").text("Emri vetem karaktere, minimumi 3"); // Show error message
+    error++;
+} else {
+    $("#username").removeClass("error"); // Remove error styling
+    $("#usernameError").text(""); // Clear the error message (but keep space)
+}
 
-        // Validate email
-        if (isEmpty(email)) {
-            $("#user_email").addClass('error');
-            $("#emailError").text("Email nuk mund te jete bosh");
-            error++;
-        } else {
-            $("#user_email").removeClass('error');
-            $("#emailError").text("");
-        }
+// Validate email
+if (isEmpty(email)) {
+    $("email").addClass("error");
+    $("#emailError").text("Email nuk mund te jete bosh");
+    error++;
+} else {
+    $("#user_email").removeClass("error");
+    $("#emailError").text(""); // Clear the error message
+}
 
-        // Validate password
-        if (!passwordRegex.test(password)) {
-            $("#user_password").addClass('error');
-            $("#passwordError").text("Password ka minimumi 4 karaktere");
-            error++;
-        } else if (password != confirmPassword) {
-            $("#user_password").addClass('error');
-            $("#confirm-password").addClass('error');
-            $("#passwordError").text("Passwordet nuk jane te barabarta");
-            $("#confirmPasswordError").text("Passwordet nuk jane te barabarta");
-            error++;
-        } else {
-            $("#user_password").removeClass('error');
-            $("#confirm-password").removeClass('error');
-            $("#passwordError").text("");
-            $("#confirmPasswordError").text("");
-        }
+// Validate terms acceptance
+if (!$("#terms").is(":checked")) {
+    $("#termsError").text("Duhet te pranoni termat dhe kushtet"); // Show error
+    error++;
+} else {
+    $("#termsError").text(""); // Clear the error
+}
+
+// Validate password
+if (!passwordRegex.test(password)) {
+    $("password").addClass("error");
+    $("#passwordError").text("Password duhet minimumi 4 karaktere");
+    error++;
+} else if (password !== confirmPassword) {
+    $("#password").addClass("error");
+    $("#conf_password").addClass("error");
+    $("#passwordError").text("Passwordet nuk jane te barabarta");
+    $("#confirmPasswordError").text("Passwordet nuk jane te barabarta");
+    error++;
+} else {
+    $("#password").removeClass("error");
+    $("#conf_password").removeClass("error");
+    $("#passwordError").text(""); // Clear error
+    $("#confirmPasswordError").text(""); // Clear error
+}
 
         // If no errors, proceed with AJAX
         if (error == 0) {
             var data = new FormData();
             data.append("action", "register");
-            data.append("user_username", name);
-            data.append("user_email", email);
-            data.append("user_password", password);
-            data.append("conf_user_password", confirmPassword);
+            data.append("username", name);
+            data.append("email", email);
+            data.append("password", password);
+            data.append("conf_password", confirmPassword);
 
             // AJAX call to the backend
             $.ajax({
@@ -138,29 +147,33 @@
     <h2>Registration</h2>
     <form id="registrationForm" onsubmit="register_user(event);" novalidate>
       <div class="input-box">
-        <input type="text" id="user_username" placeholder="Enter your username" name="user_username">
+        <input type="text" id="username" placeholder="Enter your username" name="username">
         <span id="usernameError" class="error-message"></span>
       </div>
       <div class="input-box">
-        <input type="text" id="user_email" name="user_email" placeholder="Enter your email">
+        <input type="text" id="email" name="email" placeholder="Enter your email">
         <span id="emailError" class="error-message"></span>
       </div>
       <div class="input-box">
-        <input type="password" id="user_password" name="user_password" placeholder="Create password">
+        <input type="password" id="password" name="password" placeholder="Create password">
         <span id="passwordError" class="error-message"></span>
       </div>
       <div class="input-box">
-        <input type="password" id="conf_user_password" name="conf_user_password" placeholder="Confirm password">
+        <input type="password" id="conf_password" name="conf_password" placeholder="Confirm password">
         <span id="confirmPasswordError" class="error-message"></span>
       </div>
       <div class="policy">
-        <input type="checkbox" id="terms">
-        <h3>I accept all terms & conditions</h3>
-      </div>
-      <div id="termsError" class="error-message"></div>
-      <div class="input-box button">
-        <input type="submit" value="Register Now">
-      </div>
+  <input type="checkbox" id="terms">
+  <h3>I accept all terms & conditions</h3>
+</div>
+<div id="termsError" class="error-message"></div>
+<div class="input-box button">
+  <input type="submit" value="Register Now">
+</div>
+<div class="text">
+  <h3>Already have an account? <a href="login.php">Login here</a></h3>
+</div>
+
     </form>
   </div>
 </body>
