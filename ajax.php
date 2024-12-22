@@ -206,7 +206,116 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 
 
-}else {
+}elseif($_POST['action'] == "updateUser"){
+   
+    
+        // Handling user update logic
+        $id = intval($_POST['id']);
+        $name = mysqli_real_escape_string($con, $_POST['name']);
+        $surname = mysqli_real_escape_string($con, $_POST['surname']);
+        $username = mysqli_real_escape_string($con, $_POST['username']);
+        $email = mysqli_real_escape_string($con, $_POST['email']);
+
+        // Validation rules for user fields
+        if (!preg_match("/^[A-Z][a-zA-Z ]{2,19}$/", $name)) {
+            echo json_encode(['status' => 'error', 'message' => 'Name must start with a capital letter and be 3-20 characters long.']);
+            exit;
+        }
+
+        if (!preg_match("/^[A-Z][a-zA-Z ]{2,19}$/", $surname)) {
+            echo json_encode(['status' => 'error', 'message' => 'Surname must start with a capital letter and be 3-20 characters long.']);
+            exit;
+        }
+
+        if (empty($username)) {
+            echo json_encode(['status' => 'error', 'message' => 'Username cannot be empty.']);
+            exit;
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['status' => 'error', 'message' => 'Enter a valid email address.']);
+            exit;
+        }
+
+        // Check email uniqueness
+        $checkQuery = "SELECT user_id FROM users WHERE email = '$email' AND user_id != $id";
+        $checkResult = mysqli_query($con, $checkQuery);
+        if (mysqli_num_rows($checkResult) > 0) {
+            echo json_encode(['status' => 'error', 'field' => 'email', 'message' => 'Try another email.']);
+            exit;
+        }
+
+        // Handle file upload (if any)
+        $fotoPath = null;
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] == UPLOAD_ERR_OK) {
+            $uploadDir = "uploads/";
+            $fotoPath = $uploadDir . basename($_FILES['foto']['name']);
+            move_uploaded_file($_FILES['foto']['tmp_name'], $fotoPath);
+        }
+
+        // Update query for user data
+        $updateQuery = "UPDATE users SET 
+                        name = '$name', 
+                        surname = '$surname', 
+                        username = '$username', 
+                        email = '$email'" . 
+                        ($fotoPath ? ", foto = '$fotoPath'" : "") . 
+                        " WHERE user_id = $id";
+
+        if (mysqli_query($con, $updateQuery)) {
+            echo json_encode(['status' => 'success', 'message' => 'Profile updated successfully.']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Database update failed: ' . mysqli_error($con)]);
+        }
+    }elseif (isset($_POST['action']) && $_POST['action'] == 'updatePassword') {
+        // Handle password update logic
+        $userId = intval($_POST['id']);
+        $currentPassword = mysqli_real_escape_string($con, $_POST['currentPassword']);
+        $newPassword = mysqli_real_escape_string($con, $_POST['newPassword']);
+
+        // Fetch the user's current password hash
+        $query = "SELECT password FROM users WHERE user_id = '$userId'";
+        $result = mysqli_query($con, $query);
+
+        if (!$result) {
+            echo json_encode(['status' => 'error', 'message' => 'Database query failed: ' . mysqli_error($con)]);
+            exit;
+        }
+
+        if ($result && mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $hashedPassword = $row['password'];
+
+            // Validate the current password
+            if (password_verify($currentPassword, $hashedPassword)) {
+                // Check if the new password meets the length requirement
+                if (strlen($newPassword) < 8) {
+                    echo json_encode(['status' => 'error', 'message' => 'Password must be at least 8 characters long.']);
+                    exit;
+                }
+
+                // Hash the new password
+                $hashedNewPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+
+                // Update the password in the database
+                $updateQuery = "UPDATE users SET password = '$hashedNewPassword' WHERE user_id = '$userId'";
+                if (mysqli_query($con, $updateQuery)) {
+                    echo json_encode(['success' => true, 'message' => 'Password updated successfully.']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Failed to update password.']);
+                }
+            } else {
+                // Invalid current password
+                echo json_encode(['status' => 'error', 'message' => 'Current password is incorrect.']);
+            }
+        } else {
+            // User not found
+            echo json_encode(['status' => 'error', 'message' => 'User not found.']);
+        }
+    }
+
+
+else {
     http_response_code(405); // Invalid method
     echo json_encode(["message" => "Invalid request method."]);
 }
