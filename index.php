@@ -49,6 +49,7 @@ include('functions/common_function.php')
             <li class="nav-item">
     <?php
     // Check if the user is logged in before displaying the cart link
+    session_start();
     if (isset($_SESSION['user_id'])) {
         // User is logged in, allow access to cart.php
         echo '<a class="nav-link" href="cart.php"><i class="fa-solid fa-cart-shopping"><sup>' . getCartProductNumber() . '</sup></i></a>';

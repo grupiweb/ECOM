@@ -180,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     session_start();
 
-    $_SESSION['id'] = $row['user_id'];
+    $_SESSION['user_id'] = $row['user_id'];
     $_SESSION['email'] = $row['email'];
     $_SESSION['date_time'] = time();
     $_SESSION['name'] = $row['username'];

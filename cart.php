@@ -29,9 +29,9 @@ if (!isset($_SESSION['user_id'])) {
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
   <!-- navbar -->
-  <div class="container-fluid p-0">
+  <div class="container-fluid p-0 flex-grow-1">
     <nav class="navbar navbar-expand-lg bg-info">
       <div class="container-fluid">
         <img src="./images/logo.png" alt="" class="logo">
@@ -135,7 +135,7 @@ if (!isset($_SESSION['user_id'])) {
                                 <button class='quantity-btn increase' data-product-id='$produkt_id'>+</button>
                               </div>
                             </td>
-                            <td><span class='price' data-product-id='$produkt_id'>$$total_price</span></td>
+                            <td><span class='price' data-product-id='$produkt_id'>" . number_format($total_price, 2) . "</span></td>
                             <td>
                               <a href='remove.php?produkt_id=$produkt_id' class='remove-btn'>
                                 <button class='btn btn-danger'>Remove</button>
@@ -150,70 +150,65 @@ if (!isset($_SESSION['user_id'])) {
           </tbody>
         </table>
 
-            <script>
-    // Event listeners for up and down arrows
-    document.querySelectorAll('.quantity-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            let productId = this.getAttribute('data-product-id');
-            let inputField = document.querySelector(`.quantity-input[data-product-id='${productId}']`);
-            let quantity = parseInt(inputField.value);
-            if (this.classList.contains('increase')) {
-                quantity++;
-            } else if (this.classList.contains('decrease') && quantity > 1) {
-                quantity--;
-            }
-            inputField.value = quantity;
-
-            // Update the quantity in the database and total price
-            updateCartQuantity(productId, quantity);
-        });
-    });
-
-    // Function to update quantity in the cart
-    function updateCartQuantity(productId, quantity) {
-        // Make AJAX request to update quantity in the cart
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", "update_cart.php", true);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                let response = xhr.responseText;
-                if (response !== 'error') {
-                    // Update the total price in the table
-                    let priceElement = document.querySelector(`.price[data-product-id='${productId}']`);
-                    priceElement.textContent = "$" + (parseFloat(response)).toFixed(2);
-                } else {
-                    alert("Error updating the cart.");
-                }
-            }
-        };
-        xhr.send("product_id=" + productId + "&quantity=" + quantity);
-    }
-</script>
-
-
-            
-
-    
-
-    <!-- footer -->
-    <?php
-      include("./includes/footer.php")
-    ?>
+        <!-- Total Price and Checkout Button -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <h4>Total Price: $<span id="cart-total-price"><?php echo number_format($cart_total, 2); ?></span></h4>
+          <a href="checkout.php" class="btn btn-primary">Go to Checkout</a>
+        </div>
+      </div>
     </div>
+  </div>
 
+  <!-- Footer -->
+  <?php include("./includes/footer.php"); ?>
+    
+    <script>
+        document.querySelectorAll('.quantity-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                let productId = this.getAttribute('data-product-id');
+                let inputField = document.querySelector(`.quantity-input[data-product-id='${productId}']`);
+                let quantity = parseInt(inputField.value);
+                if (this.classList.contains('increase')) {
+                    quantity++;
+                } else if (this.classList.contains('decrease') && quantity > 1) {
+                    quantity--;
+                }
+                inputField.value = quantity;
+                updateCartQuantity(productId, quantity);
+            });
+        });
 
-     
+        function updateCartQuantity(productId, quantity) {
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", "update_cart.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    let response = xhr.responseText;
+                    if (response !== 'error') {
+                        let priceElement = document.querySelector(`.price[data-product-id='${productId}']`);
+                        priceElement.textContent = "$" + (parseFloat(response)).toFixed(2);
+                        updateCartTotalPrice();
+                    } else {
+                        alert("Error updating the cart.");
+                    }
+                }
+            };
+            xhr.send("product_id=" + productId + "&quantity=" + quantity);
+        }
 
-
-
-
-
-    <!-- bootstrap js link -->
+        function updateCartTotalPrice() {
+            let total = 0;
+            document.querySelectorAll('.price').forEach(priceElement => {
+                total += parseFloat(priceElement.textContent.replace('$', ''));
+            });
+            document.getElementById('cart-total-price').textContent = total.toFixed(2);
+        }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"></script>
-
 </body>
 
 </html>
+
