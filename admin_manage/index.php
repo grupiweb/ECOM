@@ -95,7 +95,7 @@ include('../includes/connect.php');
                 <button><a href="index.php?shiko_ekip" class="nav-link text-light bg-info my-1">SHIKO EKIPE</a></button>
                 <button><a href="" class="nav-link text-light bg-info my-1">POROSITE</a></button>
                 <button><a href="" class="nav-link text-light bg-info my-1">PAGESAT</a></button>
-                <button><a href="" class="nav-link text-light bg-info my-1">PERDORUESIT</a></button>
+                <button><a href="index.php?shiko_user" class="nav-link text-light bg-info my-1">PERDORUESIT</a></button>
                 <button><a href="" class="nav-link text-light bg-info my-1">LOGOUT</a></button>
             </div>
         </div>
@@ -135,6 +135,9 @@ include('../includes/connect.php');
         }
         if (isset($_GET['delete_liga'])) {
             include('delete_liga.php');
+        }
+        if (isset($_GET['shiko_user'])) {
+            include('shiko_user.php');
         }
         ?>
     </div>
@@ -177,6 +180,7 @@ include('../includes/connect.php');
         });
     }
 </script>
+
 
 
 </body>

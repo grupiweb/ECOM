@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 
     // Insert the new user into the database
-    $query_insert = "INSERT INTO users (username, email, password, role_id,role_name) VALUES ('$name', '$email', '$passwordHashed', 1,'user')";
+    $query_insert = "INSERT INTO users (username, email, password,foto, role_id,role_name) VALUES ('$name', '$email', '$passwordHashed','uploads/user_default.png', 1,'user')";
     $result_insert = mysqli_query($con, $query_insert);
 
     if (!$result_insert) {

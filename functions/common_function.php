@@ -286,45 +286,7 @@ function getproduktbyekip(){
       }
   }
 
-function totalPrice() {
-  global $con;
 
- 
-  if (session_status() === PHP_SESSION_NONE) {
-      session_start();
-  }
-
-  $total = 0;
-
-  
-  if (!isset($_SESSION['user_id'])) {
-      echo 0; // If user is not logged in, total is 0
-      return;
-  }
-
-  $user_id = $_SESSION['user_id'];
-
-  
-  $cart_query = "SELECT * FROM `cart` WHERE user_id='$user_id'";
-  $result = mysqli_query($con, $cart_query);
-
-  
-  while ($row = mysqli_fetch_array($result)) {
-      $produkt_id = $row['produkt_id'];
-
-      
-      $price_query = "SELECT produkt_price FROM `produkt` WHERE produkt_id='$produkt_id'";
-      $result_price = mysqli_query($con, $price_query);
-
-      
-      while ($row_price = mysqli_fetch_array($result_price)) {
-          $produkt_price = (float)$row_price['produkt_price']; // Ensure the price is treated as a number
-          $total += $produkt_price;
-      }
-  }
-
-  echo $total; 
-}
 
 
 function getCartProductNumber() {

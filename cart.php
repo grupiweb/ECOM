@@ -104,12 +104,11 @@ if (!isset($_SESSION['user_id'])) {
 
             $cart_query = "SELECT * FROM `cart` WHERE user_id = '$user_id'";
             $cart_result = mysqli_query($con, $cart_query);
+            $cart_total = 0; // Initialize cart total
 
             if (!$cart_result || mysqli_num_rows($cart_result) === 0) {
                 echo "<tr><td colspan='5'>Your cart is empty.</td></tr>";
             } else {
-                $cart_total = 0;
-
                 while ($cart_row = mysqli_fetch_array($cart_result)) {
                     $produkt_id = $cart_row['produkt_id'];
                     $quantity = $cart_row['quantity'];
@@ -211,4 +210,3 @@ if (!isset($_SESSION['user_id'])) {
 </body>
 
 </html>
-
