@@ -5,12 +5,16 @@ include('functions/common_function.php');
 session_start();
 
 // Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['id'])) {
     header("Location: login.php");
     exit();
 }
-?>
 
+if (isset($_SESSION['id']) && $_SESSION['verified'] != '1') {
+  header('Location: verify.php');
+  exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -29,10 +33,10 @@ if (!isset($_SESSION['user_id'])) {
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body>
   <!-- navbar -->
-  <div class="container-fluid p-0 flex-grow-1">
-    <nav class="navbar navbar-expand-lg bg-info">
+  <div class="container-fluid p-0">
+  <nav class="navbar navbar-expand-lg bg-info">
       <div class="container-fluid">
         <img src="./images/logo.png" alt="" class="logo">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -47,31 +51,75 @@ if (!isset($_SESSION['user_id'])) {
             <li class="nav-item">
               <a class="nav-link" href="display_all.php">Products</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Register</a>
-            </li>
+              <?php
+              // Check if the user is logged in before displaying the cart link
+                if (!isset($_SESSION['id'])) {
+                  echo '<li class="nav-item"><a class="nav-link" href="register.php">Register</a></li>';
+                }
+              ?>
             <li class="nav-item">
               <a class="nav-link" href="#">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="cart.php"><i class="fa-solid fa-cart-shopping"><sup><?php
-                   echo getCartProductNumber();
-                ?></sup></i></a>
+            <?php
+              // Check if the user is logged in before displaying the cart link
+              if (isset($_SESSION['id'])) {
+                  // User is logged in, allow access to cart.php
+                  echo '<a class="nav-link" href="cart.php"><i class="fa-solid fa-cart-shopping"><sup>' . getCartProductNumber() . '</sup></i></a>';
+              } else {
+                  // User is not logged in, redirect to login.php
+                  echo '<a class="nav-link" href="cart.php"><i class="fa-solid fa-cart-shopping"><sup>' . getCartProductNumber() . '</sup></i></a>';
+              }
+              ?>
             </li>
-          </ul> 
+          <li class="nav-item">
+              <a class="nav-link" href="#">
+                  Total Price: <?php totalPrice(); ?>
+              </a>
+          </li>
+          <?php
+            if(isset($_SESSION['id'])){
+              echo '<li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>';
+            }
+            ?>
+
+          </ul>
+          <form class="d-flex" role="search" action="search_produkt.php" method="get">
+            <input class="form-control me-2" type="search" name="search_produkt" placeholder="Search" aria-label="Search">
+           <!-- <button class="btn btn-outline-light" type="submit">Search</button> -->
+            <input type="submit" value="search" name="search_produkt_data" class="btn btn-outline-light">
+          </form>
         </div>
       </div>
     </nav>
-    <?php cart(); ?>
+      <!-- thirrja e cart() -->
+       <?php
+       cart();
+       ?>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+    <nav class="nabar navbar-expand-lg navbar-dark bg-secondary">
       <ul class="navbar-nav me-auto">
-        <li class="nav-item ms-3">
-          <a class="nav-link" href="#">Guest</a>
-        </li>
-        <li class="nav-item ms-3">
-          <a class="nav-link" href="#">Login</a>
-        </li>
+        <?php
+          if(!isset($_SESSION['id'])){
+            echo '
+              <li class="nav-item ms-3">
+                <a class="nav-link" href="#">Guest</a>
+              </li>
+              <li class="nav-item ms-3">
+                <a class="nav-link" href="login.php">Login</a>
+              </li>
+            ';
+          }else{
+            echo '
+              <li class="nav-item ms-3">
+                <a class="nav-link" href="logout.php">Logout</a>
+              </li>
+              <li class="nav-item ms-3">
+                <a class="nav-link" href="profile.php">Profile</a>
+              </li>
+              ';
+          }
+        ?>
       </ul>
     </nav>
 
@@ -95,7 +143,7 @@ if (!isset($_SESSION['user_id'])) {
           </thead>
           <tbody>
             <?php
-            $user_id = $_SESSION['user_id'];
+            $user_id = $_SESSION['id'];
             global $con;
 
             if (!$con) {
@@ -104,11 +152,12 @@ if (!isset($_SESSION['user_id'])) {
 
             $cart_query = "SELECT * FROM `cart` WHERE user_id = '$user_id'";
             $cart_result = mysqli_query($con, $cart_query);
-            $cart_total = 0; // Initialize cart total
 
             if (!$cart_result || mysqli_num_rows($cart_result) === 0) {
                 echo "<tr><td colspan='5'>Your cart is empty.</td></tr>";
             } else {
+                $cart_total = 0;
+
                 while ($cart_row = mysqli_fetch_array($cart_result)) {
                     $produkt_id = $cart_row['produkt_id'];
                     $quantity = $cart_row['quantity'];
@@ -134,7 +183,7 @@ if (!isset($_SESSION['user_id'])) {
                                 <button class='quantity-btn increase' data-product-id='$produkt_id'>+</button>
                               </div>
                             </td>
-                            <td><span class='price' data-product-id='$produkt_id'>" . number_format($total_price, 2) . "</span></td>
+                            <td><span class='price' data-product-id='$produkt_id'>$$total_price</span></td>
                             <td>
                               <a href='remove.php?produkt_id=$produkt_id' class='remove-btn'>
                                 <button class='btn btn-danger'>Remove</button>
@@ -149,64 +198,70 @@ if (!isset($_SESSION['user_id'])) {
           </tbody>
         </table>
 
-        <!-- Total Price and Checkout Button -->
-        <div class="d-flex justify-content-between align-items-center mt-3">
-          <h4>Total Price: $<span id="cart-total-price"><?php echo number_format($cart_total, 2); ?></span></h4>
-          <a href="checkout.php" class="btn btn-primary">Go to Checkout</a>
-        </div>
-      </div>
-    </div>
-  </div>
+            <script>
+    // Event listeners for up and down arrows
+    document.querySelectorAll('.quantity-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            let productId = this.getAttribute('data-product-id');
+            let inputField = document.querySelector(`.quantity-input[data-product-id='${productId}']`);
+            let quantity = parseInt(inputField.value);
+            if (this.classList.contains('increase')) {
+                quantity++;
+            } else if (this.classList.contains('decrease') && quantity > 1) {
+                quantity--;
+            }
+            inputField.value = quantity;
 
-  <!-- Footer -->
-  <?php include("./includes/footer.php"); ?>
-    
-    <script>
-        document.querySelectorAll('.quantity-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                let productId = this.getAttribute('data-product-id');
-                let inputField = document.querySelector(`.quantity-input[data-product-id='${productId}']`);
-                let quantity = parseInt(inputField.value);
-                if (this.classList.contains('increase')) {
-                    quantity++;
-                } else if (this.classList.contains('decrease') && quantity > 1) {
-                    quantity--;
-                }
-                inputField.value = quantity;
-                updateCartQuantity(productId, quantity);
-            });
+            // Update the quantity in the database and total price
+            updateCartQuantity(productId, quantity);
         });
+    });
 
-        function updateCartQuantity(productId, quantity) {
-            let xhr = new XMLHttpRequest();
-            xhr.open("POST", "update_cart.php", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    let response = xhr.responseText;
-                    if (response !== 'error') {
-                        let priceElement = document.querySelector(`.price[data-product-id='${productId}']`);
-                        priceElement.textContent = "$" + (parseFloat(response)).toFixed(2);
-                        updateCartTotalPrice();
-                    } else {
-                        alert("Error updating the cart.");
-                    }
+    // Function to update quantity in the cart
+    function updateCartQuantity(productId, quantity) {
+        // Make AJAX request to update quantity in the cart
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "update_cart.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                let response = xhr.responseText;
+                if (response !== 'error') {
+                    // Update the total price in the table
+                    let priceElement = document.querySelector(`.price[data-product-id='${productId}']`);
+                    priceElement.textContent = "$" + (parseFloat(response)).toFixed(2);
+                } else {
+                    alert("Error updating the cart.");
                 }
-            };
-            xhr.send("product_id=" + productId + "&quantity=" + quantity);
-        }
+            }
+        };
+        xhr.send("product_id=" + productId + "&quantity=" + quantity);
+    }
+</script>
 
-        function updateCartTotalPrice() {
-            let total = 0;
-            document.querySelectorAll('.price').forEach(priceElement => {
-                total += parseFloat(priceElement.textContent.replace('$', ''));
-            });
-            document.getElementById('cart-total-price').textContent = total.toFixed(2);
-        }
-    </script>
+
+            
+
+    
+
+    <!-- footer -->
+    <?php
+      include("./includes/footer.php")
+    ?>
+    </div>
+
+
+     
+
+
+
+
+
+    <!-- bootstrap js link -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"></script>
+
 </body>
 
 </html>

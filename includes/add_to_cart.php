@@ -3,13 +3,13 @@ include('../includes/connect.php');
 session_start();
 
 // Ensure user is logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['id'])) {
     echo json_encode(['status' => 'error', 'message' => 'You must log in to add products to your cart.']);
     exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['produkt_id'])) {
-    $user_id = $_SESSION['user_id'];
+    $user_id = $_SESSION['id'];
     $produkt_id = intval($_POST['produkt_id']);
     $sasia = intval($_POST['sasia']);
 

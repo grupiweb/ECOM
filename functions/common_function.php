@@ -255,13 +255,13 @@ function getproduktbyekip(){
           
           // Get the logged-in user's ID
           session_start();
-          if (!isset($_SESSION['user_id'])) {
+          if (!isset($_SESSION['id'])) {
               echo "<script>alert('You need to log in to add products to the cart')</script>";
               echo "<script>window.open('login.php','_self')</script>";
               return;
           }
           
-          $user_id = $_SESSION['user_id'];
+          $user_id = $_SESSION['id'];
           $get_produkt_id = $_GET['add_to_cart'];
           
           // Check if the product is already in the cart for this user
@@ -286,7 +286,45 @@ function getproduktbyekip(){
       }
   }
 
+function totalPrice() {
+  global $con;
 
+ 
+  if (session_status() === PHP_SESSION_NONE) {
+      session_start();
+  }
+
+  $total = 0;
+
+  
+  if (!isset($_SESSION['id'])) {
+      echo 0; // If user is not logged in, total is 0
+      return;
+  }
+
+  $user_id = $_SESSION['id'];
+
+  
+  $cart_query = "SELECT * FROM `cart` WHERE user_id='$user_id'";
+  $result = mysqli_query($con, $cart_query);
+
+  
+  while ($row = mysqli_fetch_array($result)) {
+      $produkt_id = $row['produkt_id'];
+
+      
+      $price_query = "SELECT produkt_price FROM `produkt` WHERE produkt_id='$produkt_id'";
+      $result_price = mysqli_query($con, $price_query);
+
+      
+      while ($row_price = mysqli_fetch_array($result_price)) {
+          $produkt_price = (float)$row_price['produkt_price']; // Ensure the price is treated as a number
+          $total += $produkt_price;
+      }
+  }
+
+  echo $total; 
+}
 
 
 function getCartProductNumber() {
@@ -298,11 +336,11 @@ function getCartProductNumber() {
   }
 
   // Check if user is logged in
-  if (!isset($_SESSION['user_id'])) {
+  if (!isset($_SESSION['id'])) {
       return 0; // Return 0 if not logged in
   }
 
-  $user_id = $_SESSION['user_id'];
+  $user_id = $_SESSION['id'];
   $query = "SELECT * FROM cart WHERE user_id = '$user_id'";
   $result = mysqli_query($con, $query);
 

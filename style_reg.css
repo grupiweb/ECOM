@@ -19,7 +19,7 @@ body {
   position: relative;
   max-width: 430px;
   width: 100%;
-  height: 570px; /* Fixed height for the form container */
+  /*height: 570px;  /*Fixed height for the form container */
   background: #fff;
   padding: 34px;
   border-radius: 6px;
@@ -91,7 +91,19 @@ form h3 {
   cursor: pointer;
 }
 
+
+.input-box.button button {
+  color: #fff;
+  letter-spacing: 1px;
+  border: none;
+  background: #4070f4;
+  cursor: pointer;
+}
+
 .input-box.button input:hover {
+  background: #0e4bf1;
+}
+.input-box.button button:hover {
   background: #0e4bf1;
 }
 

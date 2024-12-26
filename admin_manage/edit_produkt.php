@@ -153,8 +153,8 @@ if (isset($_POST['edit_produkt'])) {
     $product_name = $_POST['produkt_name'];
     $product_description = $_POST['produkt_description'];
     $product_keywords = $_POST['produkt_keywords'];
-    $liga_id = $_POST['liga_id'];
-    $ekip_id = $_POST['ekip_id'];
+    $liga_id = $_POST['produkt_liga'];
+    $ekip_id = $_POST['produkt_ekip'];
     $product_price = $_POST['produkt_price'];
     $edit_id = $_POST['edit_id'];
 

@@ -1,6 +1,15 @@
 <?php
+session_start();
+
 include('includes/connect.php');
-include('functions/common_function.php')
+include('functions/common_function.php');
+
+// Check if the user is logged in and not verified
+if (isset($_SESSION['id']) && $_SESSION['verified'] !== '1') {
+  header('Location: verify.php');
+  exit();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +34,7 @@ include('functions/common_function.php')
 <body>
   <!-- navbar -->
   <div class="container-fluid p-0">
-    <nav class="navbar navbar-expand-lg bg-info">
+  <nav class="navbar navbar-expand-lg bg-info">
       <div class="container-fluid">
         <img src="./images/logo.png" alt="" class="logo">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -40,16 +49,37 @@ include('functions/common_function.php')
             <li class="nav-item">
               <a class="nav-link" href="display_all.php">Products</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Register</a>
-            </li>
+              <?php
+              // Check if the user is logged in before displaying the cart link
+                if (!isset($_SESSION['id'])) {
+                  echo '<li class="nav-item"><a class="nav-link" href="register.php">Register</a></li>';
+                }
+              ?>
             <li class="nav-item">
               <a class="nav-link" href="#">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#"><i class="fa-solid fa-cart-shopping"><sup>1</sup></i></a>
+            <?php
+              // Check if the user is logged in before displaying the cart link
+              if (isset($_SESSION['id'])) {
+                  // User is logged in, allow access to cart.php
+                  echo '<a class="nav-link" href="cart.php"><i class="fa-solid fa-cart-shopping"><sup>' . getCartProductNumber() . '</sup></i></a>';
+              } else {
+                  // User is not logged in, redirect to login.php
+                  echo '<a class="nav-link" href="cart.php"><i class="fa-solid fa-cart-shopping"><sup>' . getCartProductNumber() . '</sup></i></a>';
+              }
+              ?>
             </li>
-           
+          <li class="nav-item">
+              <a class="nav-link" href="#">
+                  Total Price: <?php totalPrice(); ?>
+              </a>
+          </li>
+          <?php
+            if(isset($_SESSION['id'])){
+              echo '<li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>';
+            }
+            ?>
 
           </ul>
           <form class="d-flex" role="search" action="search_produkt.php" method="get">
@@ -60,17 +90,37 @@ include('functions/common_function.php')
         </div>
       </div>
     </nav>
+      <!-- thirrja e cart() -->
+       <?php
+       cart();
+       ?>
 
     <nav class="nabar navbar-expand-lg navbar-dark bg-secondary">
       <ul class="navbar-nav me-auto">
-        <li class="nav-item ms-3">
-          <a class="nav-link" href="#">Guest</a>
-        </li>
-        <li class="nav-item ms-3">
-          <a class="nav-link" href="#">Login</a>
-        </li>
+        <?php
+          if(!isset($_SESSION['id'])){
+            echo '
+              <li class="nav-item ms-3">
+                <a class="nav-link" href="#">Guest</a>
+              </li>
+              <li class="nav-item ms-3">
+                <a class="nav-link" href="login.php">Login</a>
+              </li>
+            ';
+          }else{
+            echo '
+              <li class="nav-item ms-3">
+                <a class="nav-link" href="logout.php">Logout</a>
+              </li>
+              <li class="nav-item ms-3">
+                <a class="nav-link" href="profile.php">Profile</a>
+              </li>
+              ';
+          }
+        ?>
       </ul>
     </nav>
+
 
     <div class="bg-light">
       <h3 class="text-center">Hidden Store</h3>

@@ -104,7 +104,11 @@
               if (response.success) {
                 toastr.success(response.message);
                 setTimeout(function() {
-                  window.location.href = response.location;
+                  if (response.verified) {
+                    window.location.href = response.location;
+                  } else {
+                    window.location.href = "/verify.php"; // Redirect to verify page if not verified
+                  }
                 }, 2500);
               } else {
                 toastr.error(response.message); // Display error message from server

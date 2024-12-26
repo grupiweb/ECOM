@@ -1,6 +1,13 @@
 <?php
+session_start();
 include('includes/connect.php');
-include('functions/common_function.php')
+include('functions/common_function.php');
+
+// Check if the user is logged in and not verified
+if (isset($_SESSION['id']) && $_SESSION['verified'] !== '1') {
+  header('Location: verify.php');
+  exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -49,7 +56,9 @@ include('functions/common_function.php')
             <li class="nav-item">
               <a class="nav-link" href="#"><i class="fa-solid fa-cart-shopping"><sup>1</sup></i></a>
             </li>
-            
+            <li class="nav-item">
+              <a class="nav-link" href="#">Total Price: <?php totalPrice() ?></a>
+            </li>
 
           </ul>
           <form class="d-flex" role="search" method="get" action="">

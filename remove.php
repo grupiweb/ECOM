@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Ensure the user is logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['id'])) {
     header("Location: login.php"); // Redirect to login if not logged in
     exit;
 }
@@ -15,7 +15,7 @@ if (isset($_GET['produkt_id'])) {
     include("includes/connect.php"); // Include database connection
 
     $produkt_id = $_GET['produkt_id'];
-    $user_id = $_SESSION['user_id'];
+    $user_id = $_SESSION['id'];
 
     // Remove the item from the cart
     $delete_query = "DELETE FROM `cart` WHERE user_id = '$user_id' AND produkt_id = '$produkt_id'";

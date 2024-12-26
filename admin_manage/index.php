@@ -18,13 +18,6 @@ include('../includes/connect.php');
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
-    <!-- JS scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     
     <style>
         .footer {
@@ -95,7 +88,7 @@ include('../includes/connect.php');
                 <button><a href="index.php?shiko_ekip" class="nav-link text-light bg-info my-1">SHIKO EKIPE</a></button>
                 <button><a href="" class="nav-link text-light bg-info my-1">POROSITE</a></button>
                 <button><a href="" class="nav-link text-light bg-info my-1">PAGESAT</a></button>
-                <button><a href="index.php?shiko_user" class="nav-link text-light bg-info my-1">PERDORUESIT</a></button>
+                <button><a href="" class="nav-link text-light bg-info my-1">PERDORUESIT</a></button>
                 <button><a href="" class="nav-link text-light bg-info my-1">LOGOUT</a></button>
             </div>
         </div>
@@ -130,23 +123,17 @@ include('../includes/connect.php');
         if (isset($_GET['edit_ekip'])) {
             include('edit_ekip.php');
         }
-        if (isset($_GET['delete_ekip'])) {
-            include('delete_ekip.php');
-        }
-        if (isset($_GET['delete_liga'])) {
-            include('delete_liga.php');
-        }
-        if (isset($_GET['shiko_user'])) {
-            include('shiko_user.php');
-        }
         ?>
     </div>
 
     <?php include("../includes/footer.php"); ?>
 </div>
 
-
-
+<!-- JS scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
     $(document).ready(function () {
@@ -180,7 +167,6 @@ include('../includes/connect.php');
         });
     }
 </script>
-
 
 
 </body>

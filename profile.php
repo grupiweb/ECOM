@@ -8,12 +8,12 @@ if (!$con) {
 }
 
 // Ensure the user is logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['id'])) {
     header('Location: login.php'); // Redirect to login page if not logged in
     exit();
 }
 
-$user_id = $_SESSION['user_id']; // Get the logged-in user's ID
+$user_id = $_SESSION['id']; // Get the logged-in user's ID
 
 // Fetch the user's data
 $query = "SELECT * FROM users WHERE user_id = '$user_id'";

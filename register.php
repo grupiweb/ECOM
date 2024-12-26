@@ -31,6 +31,8 @@
     function register_user(event) {
         event.preventDefault(); // Prevent form submission
 
+        var name = $("#name").val();
+        var surname = $("#surname").val();
         var name = $("#username").val();
         var email = $("#email").val();
         var password = $("#password").val();
@@ -42,6 +44,26 @@
 
         var error = 0;
         
+        // Validate first name
+        if (!nameRegex.test(name)) {
+            $("#name").addClass("error");
+            $("#nameError").text("Emri vetem karaktere, minimumi 3");
+            error++;
+        } else {
+            $("#name").removeClass("error");
+            $("#nameError").text("");
+        }
+
+        // Validate surname
+        if (!nameRegex.test(surname)) {
+            $("#surname").addClass("error");
+            $("#surnameError").text("Mbiemri vetem karaktere, minimumi 3");
+            error++;
+        } else {
+            $("#surname").removeClass("error");
+            $("#surnameError").text("");
+        }
+
         // Validate name
 if (!nameRegex.test(name)) {
     $("#username").addClass("error"); // Add error styling to the input
@@ -87,43 +109,44 @@ if (!passwordRegex.test(password)) {
     $("#passwordError").text(""); // Clear error
     $("#confirmPasswordError").text(""); // Clear error
 }
+    // If no errors, proceed with AJAX
+    if (error == 0) {
+        var data = new FormData();
+        data.append("action", "register");
+        data.append("name", name);
+        data.append("surname", surname);
+        data.append("username", name);
+        data.append("email", email);
+        data.append("password", password);
+        data.append("conf_password", confirmPassword);
 
-        // If no errors, proceed with AJAX
-        if (error == 0) {
-            var data = new FormData();
-            data.append("action", "register");
-            data.append("username", name);
-            data.append("email", email);
-            data.append("password", password);
-            data.append("conf_password", confirmPassword);
+        // AJAX call to the backend
+        $.ajax({
+            type: "POST",
+            url: "ajax.php",
+            async: false,
+            cache: false,
+            processData: false,
+            data: data,
+            contentType: false,
+            success: function (response, status, call) {
+                response = JSON.parse(response);
+                console.log(response);
 
-            // AJAX call to the backend
-            $.ajax({
-                type: "POST",
-                url: "ajax.php",
-                async: false,
-                cache: false,
-                processData: false,
-                data: data,
-                contentType: false,
-                success: function (response, status, call) {
-                    response = JSON.parse(response);
-                    console.log(response);
-
-                    if (call.status == 200) {
-                        toastr.success(response.message); // Use toastr for success message
-                        setTimeout(function () {
-                            window.location.href = response.location;
-                        }, 2500);
-                    } else {
-                        $("#" + response.tagError).text(response.message); // Display validation errors
-                        $("#" + response.tagElement).addClass('error'); // Highlight error field
-                    }
-                },
-                error: function () {
-                    showMessage("An error occurred. Please try again.", "error");
+                if (call.status == 200) {
+                    toastr.success(response.message); // Use toastr for success message
+                    setTimeout(function () {
+                        window.location.href = "/verify.php"; // Redirect to verify page
+                    }, 2500);
+                } else {
+                    $("#" + response.tagError).text(response.message); // Display validation errors
+                    $("#" + response.tagElement).addClass('error'); // Highlight error field
                 }
-            });
+            },
+            error: function () {
+                showMessage("An error occurred. Please try again.", "error");
+            }
+        });
         }
     }
 
@@ -146,6 +169,14 @@ if (!passwordRegex.test(password)) {
   <div class="wrapper">
     <h2>Registration</h2>
     <form id="registrationForm" onsubmit="register_user(event);" novalidate>
+      <div class="input-box">
+        <input type="text" id="name" placeholder="Enter your first name" name="name">
+        <span id="nameError" class="error-message"></span>
+      </div>
+      <div class="input-box">
+        <input type="text" id="surname" placeholder="Enter your surname" name="surname">
+        <span id="surnameError" class="error-message"></span>
+      </div>
       <div class="input-box">
         <input type="text" id="username" placeholder="Enter your username" name="username">
         <span id="usernameError" class="error-message"></span>
