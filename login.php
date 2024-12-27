@@ -107,7 +107,7 @@
                   if (response.verified) {
                     window.location.href = response.location;
                   } else {
-                    window.location.href = "/verify.php"; // Redirect to verify page if not verified
+                    window.location.href = "./verify.php"; // Redirect to verify page if not verified
                   }
                 }, 2500);
               } else {

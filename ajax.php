@@ -216,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(200);
             echo json_encode([
                 "message" => "Useri u ruajt me sukses. Verifikimi i email-it eshte derguar.",
-                "location" => "/verify.php"  // Redirect to verification page
+                "location" => "./verify.php"  // Redirect to verification page
             ]);
             exit;
 
@@ -348,7 +348,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode([
                     "success" => true,
                     "message" => "User logged in but email not verified.",
-                    "location" => "/verify.php"
+                    "location" => "./verify.php"
                 ]);
                 exit;
             }
@@ -454,7 +454,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         exit;
                     }
 
-                    echo json_encode(['status' => 'success', 'message' => 'Profile updated successfully. Verification email sent.', 'redirect' => '/verify.php']);
+                    echo json_encode(['status' => 'success', 'message' => 'Profile updated successfully. Verification email sent.', 'redirect' => './verify.php']);
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'Database update failed: ' . mysqli_error($con)]);
                 }

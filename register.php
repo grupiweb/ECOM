@@ -136,7 +136,7 @@ if (!passwordRegex.test(password)) {
                 if (call.status == 200) {
                     toastr.success(response.message); // Use toastr for success message
                     setTimeout(function () {
-                        window.location.href = "/verify.php"; // Redirect to verify page
+                        window.location.href = "./verify.php"; // Redirect to verify page
                     }, 2500);
                 } else {
                     $("#" + response.tagError).text(response.message); // Display validation errors

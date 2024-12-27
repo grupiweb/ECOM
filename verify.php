@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
                         if (call.status == 200) {
                             toastr.success(response.message); // Use toastr for success message
-                            window.location.href = "/profile.php"; // Redirect to profile page
+                            window.location.href = "./profile.php"; // Redirect to profile page
                         } else {
                             toastr.error(response.message); // Use toastr for error message
                             $("#responseMessage").text(response.message); // Display error message
