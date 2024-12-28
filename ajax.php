@@ -277,6 +277,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 users.password, 
                                 users.role_id, 
                                 users.verified,
+                                users.failed_attempts,
+                                users.lockout_time,
                                 roles.name AS role_name
                             FROM 
                                 users 
@@ -309,6 +311,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $row = mysqli_fetch_assoc($result_check);
+            
+
+            // If the account is locked, check if the lockout time has passed
+            if ($row['failed_attempts'] >= 7) {
+                $lockout_time = strtotime($row['lockout_time']);
+                $current_time = time();
+                
+                // If lockout period (30 mins) has passed, reset attempts
+                if ($current_time - $lockout_time > 1800) {
+                    // Reset failed attempts and lockout time
+                    $reset_query = "UPDATE users SET failed_attempts = 0, lockout_time = NULL WHERE user_id = " . $row['user_id'];
+                    mysqli_query($con, $reset_query);
+                } else {
+                    http_response_code(203);
+                    echo json_encode(
+                        array(
+                            "message" => "Your account is locked. Please try again after 30 minutes."
+                        ));
+                    exit;
+                }
+            }
 
             // Handle missing role
             if (empty($row['role_name'])) {
@@ -320,6 +343,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // verifikimi i password
             if (!password_verify($password, $passwordHashed)) {
+                $new_failed_attempts = $row['failed_attempts'] + 1;
+                $query_update_failed_attempts = "UPDATE users SET failed_attempts = $new_failed_attempts WHERE user_id = " . $row['user_id'];
+                mysqli_query($con, $query_update_failed_attempts);
+        
+                // Lock account after 7 failed attempts
+                if ($new_failed_attempts >= 7) {
+                    $lockout_time = date("Y-m-d H:i:s");
+                    $query_lockout = "UPDATE users SET lockout_time = '$lockout_time' WHERE user_id = " . $row['user_id'];
+                    mysqli_query($con, $query_lockout);
+                }
+        
                 http_response_code(203);
                 echo json_encode(
                     array(
@@ -327,6 +361,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ));
                 exit;
             }
+
+            $query_reset_failed_attempts = "UPDATE users SET failed_attempts = 0, lockout_time = NULL WHERE user_id = " . $row['user_id'];
+            mysqli_query($con, $query_reset_failed_attempts);
+        
 
             // Suppress the notice for session_start() if a session is already active
             if (session_status() === PHP_SESSION_NONE) {
