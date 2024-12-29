@@ -9,6 +9,12 @@ if (!isset($_SESSION['id'])) {
     header("Location: login.php");
     exit();
 }
+// Check if user is logged in
+if (isset($_SESSION['id']) && $_SESSION['verified']!='1') {
+  header("Location: verify.php");
+  exit();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -105,11 +111,11 @@ if (!isset($_SESSION['id'])) {
             $cart_query = "SELECT * FROM `cart` WHERE user_id = '$user_id'";
             $cart_result = mysqli_query($con, $cart_query);
 
+            $cart_total = 0; // Initialize cart total to 0
+
             if (!$cart_result || mysqli_num_rows($cart_result) === 0) {
                 echo "<tr><td colspan='5'>Your cart is empty.</td></tr>";
             } else {
-                $cart_total = 0;
-
                 while ($cart_row = mysqli_fetch_array($cart_result)) {
                     $produkt_id = $cart_row['produkt_id'];
                     $quantity = $cart_row['quantity'];

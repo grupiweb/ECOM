@@ -6,7 +6,6 @@ include('functions/common_function.php');
 
 // Check if the user is logged in and not verified
 
-
 ?>
 
 <!DOCTYPE html>
