@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Sanitize and validate input
             $name = mysqli_real_escape_string($con, trim($_POST['name']));
             $surname = mysqli_real_escape_string($con, trim($_POST['surname']));
-            $name = mysqli_real_escape_string($con, trim($_POST['username']));
+            $username = mysqli_real_escape_string($con, trim($_POST['username']));
             $email = mysqli_real_escape_string($con, trim($_POST['email']));
             $password = mysqli_real_escape_string($con, trim($_POST['password']));
             $confirmPassword = mysqli_real_escape_string($con, trim($_POST['conf_password']));
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Insert the new user into the database
-            $query_insert = "INSERT INTO users (name, surname, username, email, password, role_id, role_name, verified) VALUES ('$name', '$surname', '$name', '$email', '$passwordHashed', 1, 'user', 0)";
+            $query_insert = "INSERT INTO users (name, surname, username, email, password, role_id, role_name, verified) VALUES ('$name', '$surname', '$username', '$email', '$passwordHashed', 1, 'user', 0)";
             $result_insert = mysqli_query($con, $query_insert);
 
             if (!$result_insert) {
@@ -243,6 +243,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mysqli_query($con, $query_update_verified);
 
                 http_response_code(200);
+            
+                $_SESSION['verified'] = '1';
+
                 echo json_encode([
                     "message" => "Email verified successfully."
                 ]);
@@ -253,23 +256,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
             }
             exit;
-        } elseif($_POST['action'] == "login"){
-            $email = mysqli_real_escape_string($con,trim($_POST['email']));
-            $password = mysqli_real_escape_string($con,trim($_POST['password']));
-
+        }
+        elseif ($_POST['action'] == "login") {
+            $email = mysqli_real_escape_string($con, trim($_POST['email']));
+            $password = mysqli_real_escape_string($con, trim($_POST['password']));
+        
             if (empty($password) || strlen($password) < 4) {
                 http_response_code(203);
-                echo json_encode(
-                    array(
-                        "message" => "Passwordi minimumi 4 karaktere.",
-                        "tagError" => "passwordError",
-                        "tagElement" => "password"
-                    ));
+                echo json_encode([
+                    "message" => "Password must be at least 4 characters.",
+                    "tagError" => "passwordError",
+                    "tagElement" => "password"
+                ]);
                 exit;
             }
-            
-            // Kontrollojme nese useri ekziston ne db me email dhe pass
-
+        
+            // Query user details
             $query_check = "SELECT 
                                 users.user_id, 
                                 users.username, 
@@ -277,162 +279,218 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 users.password, 
                                 users.role_id, 
                                 users.verified,
+                                users.verification_code,
+                                users.code_expiration,
                                 roles.name AS role_name
                             FROM 
                                 users 
                             LEFT JOIN 
                                 roles ON users.role_id = roles.id
                             WHERE 
-                                users.email = '".$email."';";
-
-
+                                users.email = '$email';";
+        
             $result_check = mysqli_query($con, $query_check);
-
-            if (!$result_check){
+        
+            if (!$result_check) {
                 http_response_code(500);
-                echo json_encode(
-                    array(
-                        "message" => "Internal Server Error",
-                        "error" => mysqli_error($con)
-                    ));
+                echo json_encode([
+                    "message" => "Internal Server Error",
+                    "error" => mysqli_error($con)
+                ]);
                 exit;
             }
-
-            // nese nuk ekziston nje user me kete email
-            if (mysqli_num_rows($result_check) == 0 ){
+        
+            if (mysqli_num_rows($result_check) == 0) {
                 http_response_code(203);
-                echo json_encode(
-                    array(
-                        "message" => "Nuk ka user me kete email/nr"
-                    ));
+                echo json_encode(["message" => "No user found with this email."]);
                 exit;
             }
-
+        
             $row = mysqli_fetch_assoc($result_check);
-
-            // Handle missing role
-            if (empty($row['role_name'])) {
-            $row['role_name'] = 'user'; // Default role name if role is missing
-            }
-            
-            
             $passwordHashed = $row['password'];
-
-            // verifikimi i password
+        
+            // Verify password
             if (!password_verify($password, $passwordHashed)) {
                 http_response_code(203);
-                echo json_encode(
-                    array(
-                        "message" => "Passwordi/Email te pasakte."
-                    ));
+                echo json_encode(["message" => "Incorrect email or password."]);
                 exit;
             }
-
-            // Suppress the notice for session_start() if a session is already active
+        
+            // Start session if not already active
             if (session_status() === PHP_SESSION_NONE) {
                 session_start();
             }
-
+        
             $_SESSION['id'] = $row['user_id'];
             $_SESSION['email'] = $row['email'];
             $_SESSION['date_time'] = time();
             $_SESSION['name'] = $row['username'];
             $_SESSION['role_name'] = $row['role_name'];
             $_SESSION['verified'] = $row['verified'];
-
-            mysqli_close($con);
-
-            // Redirect to verification page if the user is not verified
+        
+            // If the user is not verified, send a verification email
             if ($row['verified'] == 0) {
-                http_response_code(200);
-                echo json_encode([
-                    "success" => true,
-                    "message" => "User logged in but email not verified.",
-                    "location" => "./verify.php"
-                ]);
+                // Generate a new verification code
+                $verificationCode = rand(100000, 999999);
+                $expirationDate = date("Y-m-d H:i:s", strtotime("+24 hour"));
+        
+                // Update the database with the new code and expiration date
+                $query_insert_code = "UPDATE users SET verification_code = '$verificationCode', code_expiration = '$expirationDate' WHERE email = '$email'";
+                if (!mysqli_query($con, $query_insert_code)) {
+                    http_response_code(500);
+                    echo json_encode(["message" => "Error updating verification code in the database."]);
+                    exit;
+                }
+        
+                // Send the verification email
+                $mail = new PHPMailer(true);
+                try {
+                    // Server settings
+                    $mail->isSMTP();
+                    $mail->Host = 'smtp.gmail.com';
+                    $mail->SMTPAuth = true;
+                    $mail->Username = $GMAIL_ADDRESS; // Your email address
+                    $mail->Password = $GMAIL_ADDRESS_PASSWORD; // Your email password
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                    $mail->Port = 587;
+        
+                    // Recipients
+                    $mail->setFrom('your-email@gmail.com', 'Mailer');
+                    $mail->addAddress($email, $row['username']); // Send to the user's email
+        
+                    // Content
+                    $mail->isHTML(true);
+                    $mail->Subject = 'Your Verification Code';
+                    $mail->Body = "Your 6-digit verification code is: <b>$verificationCode</b><br><br>
+                        Please verify your email by visiting the following link: 
+                        <a href='http://yourwebsite.com/verify.php'>Verify Now</a>";
+        
+                    $mail->send();
+        
+                    // Notify the user that an email has been sent
+                    http_response_code(200);
+                    echo json_encode([
+                        "success" => true,
+                        "message" => "Verification email sent. Please check your inbox.",
+                        "verified" => false,
+                        "location" => "./verify.php"
+                    ]);
+                    exit;
+        
+                } catch (Exception $e) {
+                    http_response_code(500);
+                    echo json_encode([
+                        "message" => "Could not send verification email. Please try again later.",
+                        "error" => $mail->ErrorInfo
+                    ]);
+                    exit;
+                }
+            }
+             // Update session email
+
+
+
+            // Redirect based on role if the user is verified
+            $location = "index.php"; // Default location for regular users
+            if (strtolower($row['role_name']) === "admin") { // Ensure case-insensitivity
+                $location = "./admin_manage/index.php"; // Admin location
+            }
+            if ($row['verified'] == 1 && $_SESSION['email'] != $row['email']) {
+                $_SESSION['email'] = $row['email']; // Update session email if changed
+            }
+        
+            http_response_code(200);
+           
+            echo json_encode([
+                "success" => true,
+                "message" => "User logged in successfully.",
+                "verified" => true,
+                "location" => $location
+            ]);
+            exit;
+        }
+        
+        
+        elseif ($_POST['action'] == "updateUser") {
+            $id = intval($_POST['id']);
+            $name = mysqli_real_escape_string($con, $_POST['name']);
+            $surname = mysqli_real_escape_string($con, $_POST['surname']);
+            $username = mysqli_real_escape_string($con, $_POST['username']);
+            $email = mysqli_real_escape_string($con, $_POST['email']);
+        
+            // Validation for user fields
+            if (!preg_match("/^[A-Z][a-zA-Z ]{2,19}$/", $name)) {
+                echo json_encode(['status' => 'error', 'field' => 'name', 'message' => 'Name must start with a capital letter and be 3-20 characters long.']);
                 exit;
             }
-
-            // Nese eshte admin location eshte lista e userave
-            // nese eshte user location eshte profili 
-            $location = "index.php";
-            if ($row['role_id'] != 1){
-                $location = "./admin_manage/index.php";   
+        
+            if (!preg_match("/^[A-Z][a-zA-Z ]{2,19}$/", $surname)) {
+                echo json_encode(['status' => 'error', 'field' => 'surname', 'message' => 'Surname must start with a capital letter and be 3-20 characters long.']);
+                exit;
             }
+        
+            if (empty($username)) {
+                echo json_encode(['status' => 'error', 'field' => 'username', 'message' => 'Username cannot be empty.']);
+                exit;
+            }
+        
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                echo json_encode(['status' => 'error', 'field' => 'email', 'message' => 'Enter a valid email address.']);
+                exit;
+            }
+        
+            // Check if the email belongs to another user
+            $emailCheckQuery = "SELECT user_id FROM users WHERE email = '$email' AND user_id != $id";
+            $emailCheckResult = mysqli_query($con, $emailCheckQuery);
+        
+            if (mysqli_num_rows($emailCheckResult) > 0) {
+                echo json_encode(['status' => 'error', 'field' => 'email', 'message' => 'Try another email.']);
+                exit;
+            }
+        
+            // Check for the current user's email
+            $currentEmailQuery = "SELECT email FROM users WHERE user_id = $id";
+            $currentEmailResult = mysqli_query($con, $currentEmailQuery);
+            if (!$currentEmailResult || mysqli_num_rows($currentEmailResult) == 0) {
+                echo json_encode(['status' => 'error', 'message' => 'User not found.']);
+                exit;
+            }
+        
+            $currentEmailRow = mysqli_fetch_assoc($currentEmailResult);
+            $existingEmail = $currentEmailRow['email'];
+        
+            // Check if email is being changed
+            $isEmailChanged = ($email !== $existingEmail);
+        
+            // Handle file upload (if any)
+            $fotoPath = null;
+            if (isset($_FILES['foto']) && $_FILES['foto']['error'] == UPLOAD_ERR_OK) {
+                $uploadDir = "uploads/";
+                $fotoPath = $uploadDir . basename($_FILES['foto']['name']);
+                move_uploaded_file($_FILES['foto']['tmp_name'], $fotoPath);
+            }
+        
+            // Update query for user data
+            $updateQuery = "UPDATE users SET 
+                            name = '$name', 
+                            surname = '$surname', 
+                            username = '$username', 
+                            email = '$email'" . 
+                            ($isEmailChanged ? ", verified = 0" : "") . 
+                            ($fotoPath ? ", foto = '$fotoPath'" : "") . 
+                            " WHERE user_id = $id";
+        
+            if (mysqli_query($con, $updateQuery)) {
+                if ($isEmailChanged) {
+                    // Generate verification code       
+                     $_SESSION['email'] = $email;  // Update session email
+                     $_SESSION['verified'] = '0';
 
-            http_response_code(200);
-            echo json_encode(
-                array(
-                    "success" => true,
-                    "message" => "Useri logged in",
-                    "location" => $location
-                ));
-            exit;
-
-
-
-        }elseif($_POST['action'] == "updateUser"){
-                // Handling user update logic
-                $id = intval($_POST['id']);
-                $name = mysqli_real_escape_string($con, $_POST['name']);
-                $surname = mysqli_real_escape_string($con, $_POST['surname']);
-                $username = mysqli_real_escape_string($con, $_POST['username']);
-                $email = mysqli_real_escape_string($con, $_POST['email']);
-
-                // Validation rules for user fields
-                if (!preg_match("/^[A-Z][a-zA-Z ]{2,19}$/", $name)) {
-                    echo json_encode(['status' => 'error', 'message' => 'Name must start with a capital letter and be 3-20 characters long.']);
-                    exit;
-                }
-
-                if (!preg_match("/^[A-Z][a-zA-Z ]{2,19}$/", $surname)) {
-                    echo json_encode(['status' => 'error', 'message' => 'Surname must start with a capital letter and be 3-20 characters long.']);
-                    exit;
-                }
-
-                if (empty($username)) {
-                    echo json_encode(['status' => 'error', 'message' => 'Username cannot be empty.']);
-                    exit;
-                }
-
-                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    echo json_encode(['status' => 'error', 'message' => 'Enter a valid email address.']);
-                    exit;
-                }
-
-                // Check email uniqueness
-                $checkQuery = "SELECT user_id FROM users WHERE email = '$email' AND user_id != $id";
-                $checkResult = mysqli_query($con, $checkQuery);
-                if (mysqli_num_rows($checkResult) > 0) {
-                    echo json_encode(['status' => 'error', 'field' => 'email', 'message' => 'Try another email.']);
-                    exit;
-                }
-
-                // Handle file upload (if any)
-                $fotoPath = null;
-                if (isset($_FILES['foto']) && $_FILES['foto']['error'] == UPLOAD_ERR_OK) {
-                    $uploadDir = "uploads/";
-                    $fotoPath = $uploadDir . basename($_FILES['foto']['name']);
-                    move_uploaded_file($_FILES['foto']['tmp_name'], $fotoPath);
-                }
-
-                // Update query for user data
-                $updateQuery = "UPDATE users SET 
-                                name = '$name', 
-                                surname = '$surname', 
-                                username = '$username', 
-                                email = '$email', 
-                                verified = 0" . 
-                                ($fotoPath ? ", foto = '$fotoPath'" : "") . 
-                                " WHERE user_id = $id";
-
-                if (mysqli_query($con, $updateQuery)) {
-                    // Generate a new verification code
                     $verificationCode = rand(100000, 999999);
                     $expirationDate = date("Y-m-d H:i:s", strtotime("+24 hour"));
                     $query_update_code = "UPDATE users SET verification_code = '$verificationCode', code_expiration = '$expirationDate' WHERE user_id = $id";
                     mysqli_query($con, $query_update_code);
-
+        
                     // Send verification email
                     $mail = new PHPMailer(true);
                     try {
@@ -447,18 +505,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $mail->addAddress($email);
                         $mail->isHTML(true);
                         $mail->Subject = 'Your Verification Code';
-                        $mail->Body    = "Your 6-digit verification code is: <b>$verificationCode</b>";
+                        $mail->Body = "Your 6-digit verification code is: <b>$verificationCode</b><br><br>
+                                       Please verify your email by visiting the following link: 
+                                       <a href='http://yourwebsite.com/verify.php'>Verify Now</a>";
                         $mail->send();
                     } catch (Exception $e) {
                         echo json_encode(['status' => 'error', 'message' => 'Could not send verification email.']);
                         exit;
                     }
-
-                    echo json_encode(['status' => 'success', 'message' => 'Profile updated successfully. Verification email sent.', 'redirect' => './verify.php']);
+        
+                    echo json_encode([
+                        'status' => 'success',
+                        'message' => 'Profile updated successfully. Verification email sent to the new address.',
+                        'redirect' => './verify.php'
+                    ]);
                 } else {
-                    echo json_encode(['status' => 'error', 'message' => 'Database update failed: ' . mysqli_error($con)]);
+                    echo json_encode(['status' => 'success', 'message' => 'Profile updated successfully.']);
                 }
-            }elseif (isset($_POST['action']) && $_POST['action'] == 'updatePassword') {
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Database update failed: ' . mysqli_error($con)]);
+            }
+        }
+        
+        elseif (isset($_POST['action']) && $_POST['action'] == 'updatePassword') {
                 // Handle password update logic
                 $userId = intval($_POST['id']);
                 $currentPassword = mysqli_real_escape_string($con, $_POST['currentPassword']);

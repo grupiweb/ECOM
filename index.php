@@ -4,7 +4,7 @@ include('includes/connect.php');
 include('functions/common_function.php');
 
 // Check if the user is logged in and not verified
-if (isset($_SESSION['id']) && $_SESSION['verified'] != '1') {
+if (!isset($_SESSION['id'])) {
     header('Location: verify.php');
     exit();
 }

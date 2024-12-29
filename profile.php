@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('./includes/connect.php');
+include('functions/common_function.php');
 
 // Ensure database connection is established
 if (!$con) {
@@ -38,8 +39,15 @@ $row = mysqli_fetch_assoc($result);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="profilestyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
+
+    <?php include('./includes/header.php'); ?> <!-- Including the header -->
+
     <div class="container rounded bg-white mt-5 mb-5">
         <div class="row">
             <div class="col-md-3 border-right">
@@ -212,8 +220,14 @@ function updateUser() {
                     alert(res.message);
                 }
             } else if (res.status === 'success') {
-                alert(res.message);
-                location.reload();
+                // Differentiate between email update and general update
+                if (res.redirect) {
+                    alert(res.message + " Please verify your new email address.");
+                    window.location.href = res.redirect;
+                } else {
+                    alert(res.message);
+                    location.reload();
+                }
             }
         },
         error: function () {
@@ -221,7 +235,6 @@ function updateUser() {
         }
     });
 }
-
 
 function updatePassword() {
     var userId = $("#id").val(); // Ensure user ID is included

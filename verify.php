@@ -3,7 +3,7 @@ session_start();
 include_once('includes/connect.php');
 
 if (!isset($_SESSION['email'])) {
-    header("Location: /login.php");
+    header("Location: ./login.php");
     exit;
 }
 
@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 <button class="input-box button" style="padding: 5px; border-radius: 5px;" id="resendEmail" onclick="resendVerificationEmail();">Resend Verification Email</button>
             </div>
             <div class="input-box button">
-                <a href="/logout.php">Log out</a>
+                <a href="./logout.php">Log out</a>
             </div>
             <p id="responseMessage"></p>
         </div>
@@ -142,4 +142,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     echo json_encode(["message" => "Invalid request method."]);
 }
 ?>
+
 

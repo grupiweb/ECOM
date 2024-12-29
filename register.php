@@ -33,7 +33,7 @@
 
         var name = $("#name").val();
         var surname = $("#surname").val();
-        var name = $("#username").val();
+        var username = $("#username").val();
         var email = $("#email").val();
         var password = $("#password").val();
         var confirmPassword = $("#conf_password").val();
@@ -115,7 +115,7 @@ if (!passwordRegex.test(password)) {
         data.append("action", "register");
         data.append("name", name);
         data.append("surname", surname);
-        data.append("username", name);
+        data.append("username", username);
         data.append("email", email);
         data.append("password", password);
         data.append("conf_password", confirmPassword);
