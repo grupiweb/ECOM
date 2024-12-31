@@ -1,0 +1,94 @@
+/* General styles for the page */
+body {
+  background-color: #000; /* Set background to black */
+  color: #fff; /* Default text color to white */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Ensures the footer stays at the bottom */
+}
+
+.footer {
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  margin-top: auto; /* Pushes footer to the bottom */
+}
+
+.produkt_img {
+  width: 90px;
+  object-fit: contain;
+}
+
+/* Navbar styles */
+.navbar {
+  background-color: #000 !important; /* Black background for the navbar */
+}
+
+.navbar .navbar-nav .nav-link {
+  color: #fff !important; /* White text for navbar links */
+}
+
+.navbar .navbar-nav .nav-link:hover {
+  color: #ffce00 !important; /* Yellow text on hover */
+}
+
+/* Second nav section (Yellow background with Black text) */
+.button-nav {
+  background-color: #ffce00; /* Yellow background */
+  color: #000; /* Black text */
+}
+
+.button-nav .nav-link {
+  color: #000; /* Black text */
+}
+
+.button-nav .nav-link:hover {
+  color: #fff; /* White text on hover */
+  background-color: #000; /* Black background on hover */
+}
+
+/* Admin Options section */
+.admin-options {
+  background-color: #fff; /* White background for the options section */
+  color: #000; /* Black text */
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.admin-options button {
+  background-color: #ffce00; /* Yellow background */
+  color: #000; /* Black text */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  margin: 5px;
+}
+
+.admin-options button:hover {
+  background-color: #000; /* Black background on hover */
+  color: #fff; /* White text on hover */
+}
+
+/* Table styles */
+#productTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#productTable th,
+#productTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+#productTable thead {
+  background-color: #17a2b8;
+  color: white;
+}
+
+#productTable tbody tr:hover {
+  background-color: #f1f1f1;
+}

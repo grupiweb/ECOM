@@ -2,36 +2,40 @@
 
 include('./includes/connect.php');
 
-    function getprodukt(){
-        global $con;
-        if(!isset($_GET['liga'])){
-            if(!isset($_GET['ekip'])){
-          $select_query="Select * from `produkt` order by rand() limit 0,9";
-          $result_query=mysqli_query($con,$select_query);
-          while($row=mysqli_fetch_assoc($result_query)){
-            $produkt_id=$row['produkt_id'];
-            $produkt_name=$row['produkt_name'];
-            $produkt_description=$row['produkt_description'];
-            $produkt_image1=$row['produkt_image1'];
-            $produkt_price=$row['produkt_price'];
-            $liga_id=$row['liga_id'];
-            $ekip_id=$row['ekip_id'];
-            echo "<div class='col-md-4'>
-            <div class='card' style='width: 18rem;'>
-              <img src='./admin_manage/produkt_image/$produkt_image1' class='card-img-top' alt='$produkt_name'>
-              <div class='card-body'>
-                <h5 class='card-title'>$produkt_name</h5>
-                <p class='card-text'>$produkt_description</p>
-                <p class='card-text'>$produkt_price $</p>
-                <a href='index.php?add_to_cart=$produkt_id' class='btn btn-info'>Add To Cart</a>
-                <a href='produkt_info.php?produkt_id=$produkt_id' class='btn btn-secondary'>View More</a>
+function getprodukt(){
+  global $con;
+  if(!isset($_GET['liga'])){
+      if(!isset($_GET['ekip'])){
+          $select_query = "Select * from `produkt` order by rand() limit 0,9";
+          $result_query = mysqli_query($con, $select_query);
+          while($row = mysqli_fetch_assoc($result_query)){
+              $produkt_id = $row['produkt_id'];
+              $produkt_name = $row['produkt_name'];
+              $produkt_description = $row['produkt_description'];
+              $produkt_image1 = $row['produkt_image1'];
+              $produkt_price = $row['produkt_price'];
+
+              echo "<div class='col-md-4'>
+              <div class='card'>
+
+                <div class='imgBox'>
+                  <img src='./admin_manage/produkt_image/$produkt_image1' alt='$produkt_name' class='mouse'>
+                </div>
+
+                <div class='contentBox'>
+                  <h3>$produkt_name</h3>
+                  <h2 class='price'>$produkt_price €</h2>
+                  <a href='produkt_info.php?produkt_id=$produkt_id' class='buy'>View More</a>
+                </div>
+
               </div>
-            </div>
-          </div>";
+            </div>";
           }
-        }
-    }
+      }
+  }
 }
+
+
 
 function get_all_produkt(){
     global $con;
@@ -48,17 +52,20 @@ function get_all_produkt(){
         $liga_id=$row['liga_id'];
         $ekip_id=$row['ekip_id'];
         echo "<div class='col-md-4'>
-        <div class='card' style='width: 18rem;'>
-          <img src='./admin_manage/produkt_image/$produkt_image1' class='card-img-top' alt='$produkt_name'>
-          <div class='card-body'>
-            <h5 class='card-title'>$produkt_name</h5>
-            <p class='card-text'>$produkt_description</p>
-            <p class='card-text'>$produkt_price $</p>
-            <a href='index.php?add_to_cart=$produkt_id' class='btn btn-info'>Add To Cart</a>
-             <a href='produkt_info.php?produkt_id=$produkt_id' class='btn btn-secondary'>View More</a>
-          </div>
-        </div>
-      </div>";
+              <div class='card'>
+
+                <div class='imgBox'>
+                  <img src='./admin_manage/produkt_image/$produkt_image1' alt='$produkt_name' class='mouse'>
+                </div>
+
+                <div class='contentBox'>
+                  <h3>$produkt_name</h3>
+                  <h2 class='price'>$produkt_price €</h2>
+                  <a href='produkt_info.php?produkt_id=$produkt_id' class='buy'>View More</a>
+                </div>
+
+              </div>
+            </div>";
       }
     }
 }
@@ -135,33 +142,44 @@ function getproduktbyekip(){
 
 
 
-    function getliga(){
-        global $con;
-        $select_liga = "Select * from `liga`";
-          $result_liga = mysqli_query($con, $select_liga);
+function getliga(){
+  global $con;
+  $select_liga = "SELECT * FROM `liga`";
+  $result_liga = mysqli_query($con, $select_liga);
 
-          while ($row_data = mysqli_fetch_assoc($result_liga)) {
-            $liga_name = $row_data['liga_name'];
-            $liga_id = $row_data['liga_id'];
-            echo "<li class='nav-item'>
-            <a class='nav-link text-light' href='index.php?liga=$liga_id'>$liga_name</a>
-          </li>";
-          }
-    }
+  while ($row_data = mysqli_fetch_assoc($result_liga)) {
+      $liga_name = $row_data['liga_name'];
+      $liga_id = $row_data['liga_id'];
+      echo "
+      <li class='nav-item' style='background-color: #000000;'>
+          <a class='nav-link' href='index.php?liga=$liga_id' 
+             style='color: white;' 
+             onmouseover='this.style.color=\"#ffce00\"; this.style.backgroundColor=\"#333333\";' 
+             onmouseout='this.style.color=\"white\"; this.style.backgroundColor=\"\";'>$liga_name</a>
+      </li>";
+  }
+}
 
-    function getekip(){
-        global $con;
-        $select_ekip = "Select * from `ekip`";
-        $result_ekip = mysqli_query($con, $select_ekip);
+function getekip(){
+  global $con;
+  $select_ekip = "SELECT * FROM `ekip`";
+  $result_ekip = mysqli_query($con, $select_ekip);
 
-        while ($row_data = mysqli_fetch_assoc($result_ekip)) {
-          $ekip_name = $row_data['ekip_name'];
-          $ekip_id = $row_data['ekip_id'];
-          echo "<li class='nav-item'>
-          <a class='nav-link text-light' href='index.php?ekip=$ekip_id'>$ekip_name</a>
-        </li>";
-        }
-    }
+  while ($row_data = mysqli_fetch_assoc($result_ekip)) {
+      $ekip_name = $row_data['ekip_name'];
+      $ekip_id = $row_data['ekip_id'];
+      echo "
+      <li class='nav-item' style='background-color: #000000;'>
+          <a class='nav-link' href='index.php?ekip=$ekip_id' 
+             style='color: white;' 
+             onmouseover='this.style.color=\"#ffce00\"; this.style.backgroundColor=\"#333333\";' 
+             onmouseout='this.style.color=\"white\"; this.style.backgroundColor=\"\";'>$ekip_name</a>
+      </li>";
+  }
+}
+
+
+
           
     function search_produkt(){
         global $con;
@@ -197,134 +215,176 @@ function getproduktbyekip(){
         }
       }
 
-      function view_more(){
+      
+      
+      
+      function view_more() {
         global $con;
-        if(isset($_GET['produkt_id'])){
-        if(!isset($_GET['liga'])){
-            if(!isset($_GET['ekip'])){
-              $produkt_id=$_GET['produkt_id'];
-              $select_query="Select * from `produkt` where produkt_id=$produkt_id";
-          $result_query=mysqli_query($con,$select_query);
-          while($row=mysqli_fetch_assoc($result_query)){
-            $produkt_id=$row['produkt_id'];
-            $produkt_name=$row['produkt_name'];
-            $produkt_description=$row['produkt_description'];
-            $produkt_image1=$row['produkt_image1'];
-            $produkt_image2=$row['produkt_image2'];
-            $produkt_image3=$row['produkt_image3'];
-            $produkt_price=$row['produkt_price'];
-            $liga_id=$row['liga_id'];
-            $ekip_id=$row['ekip_id'];
-            echo "<div class='col-md-4'>
-            <div class='card' style='width: 18rem;'>
-              <img src='./admin_manage/produkt_image/$produkt_image1' class='card-img-top' alt='$produkt_name'>
-              <div class='card-body'>
-                <h5 class='card-title'>$produkt_name</h5>
-                <p class='card-text'>$produkt_description</p>
-                <p class='card-text'>$produkt_price $</p>
-                <a href='index.php?add_to_cart=$produkt_id' class='btn btn-info'>Add To Cart</a>
-                <a href='index.php' class='btn btn-secondary'>Home</a>
-              </div>
-            </div>
-          </div>
-          <div class='col-md-8'>
-            <div class='row'>
-                <div class='col-md-12'>
-                    <h4 class='text-center text-info mb-5'>Reth Produktit</h4>
+        if (isset($_GET['produkt_id'])) {
+            $produkt_id = $_GET['produkt_id'];
+    
+            // Fetch product details
+            $select_query = "SELECT * FROM produkt WHERE produkt_id = $produkt_id";
+            $result_query = mysqli_query($con, $select_query);
+            while ($row = mysqli_fetch_assoc($result_query)) {
+                $produkt_name = $row['produkt_name'];
+                $produkt_description = $row['produkt_description'];
+                $produkt_image1 = $row['produkt_image1'];
+                $produkt_image2 = $row['produkt_image2'];
+                $produkt_image3 = $row['produkt_image3'];
+                $produkt_price = $row['produkt_price'];
+    
+                // Start of HTML output
+                echo "
+                <div id='content-wrapper'>
+                    <div class='column'>
+                        <img id='featured' src='./admin_manage/produkt_image/$produkt_image1' alt='$produkt_name'>
+                        <div id='thumbnails-wrapper'>
+                            <img class='thumbnail thumbnail-active' src='./admin_manage/produkt_image/$produkt_image1' alt='$produkt_name Image 1'>
+                            <img class='thumbnail' src='./admin_manage/produkt_image/$produkt_image2' alt='$produkt_name Image 2'>
+                            <img class='thumbnail' src='./admin_manage/produkt_image/$produkt_image3' alt='$produkt_name Image 3'>
+                        </div>
+                    </div>
+                    <div class='column'>
+                        <h1>$produkt_name</h1>
+                        <hr>
+                        <h3>\$$produkt_price</h3>
+                        <p>$produkt_description</p>
+    
+                        <!-- Size Selector -->
+                        <div class='size-selector'>
+                            <label for='size'>Select Size</label>
+                            <div class='sizes' style='display: flex; justify-content: center; gap: 10px; margin-top: 10px;'>";
+    
+                // Define all sizes
+                $all_sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+    
+                // Ensure $produkt_id is defined and valid before the query
+                $produkt_id = (int) $produkt_id;  // Casting to int to ensure it's numeric
+    
+                // Fetch stock information for sizes
+                $size_query = "SELECT * FROM sizes WHERE produkt_id = $produkt_id";
+                $size_result = mysqli_query($con, $size_query);
+                $size_stock = array();  // Initialize the array
+                $size_ids = array();    // Initialize the array
+    
+                if ($size_result) {
+                    while ($size_row = mysqli_fetch_assoc($size_result)) {
+                        // Check if 'size' and 'stock' keys exist in the result
+                        if (isset($size_row['size']) && isset($size_row['stock'])) {
+                            $size_stock[$size_row['size']] = (int) $size_row['stock'];  // Cast stock to integer
+                            $size_ids[$size_row['size']] = (int) $size_row['size_id'];  // Cast size_id to integer
+                        }
+                    }
+                } else {
+                    // Handle query failure
+                    echo "Error fetching size data: " . mysqli_error($con);
+                }
+    
+                // Render size buttons dynamically
+                foreach ($all_sizes as $size) {
+                    $stock = isset($size_stock[$size]) ? $size_stock[$size] : 0;
+                    $size_id = isset($size_ids[$size]) ? $size_ids[$size] : null;
+                    $disabled = ($stock <= 0) ? 'disabled' : '';
+                    $class = ($stock <= 0) ? 'out-of-stock' : 'in-stock';
+    
+                    // Render the size button
+                    echo "<button class='size-btn $class' data-size='$size' data-size-id='$size_id' $disabled>$size</button>";
+                }
+    
+                echo "
+                            </div>
+                        </div>
+    
+                        <!-- Add to Cart Button -->
+                        <a class='btn add-to-cart-btn' id='addToCartBtn' href='' data-produkt-id='$produkt_id'>Add to Cart</a>
+                    </div>
                 </div>
-                
-                <div class='col-md-6'>
-                <img src='./admin_manage/produkt_image/$produkt_image2' class='card-img-top' alt='$produkt_name'>
-                </div>
-                <div class='col-md-6'>
-                <img src='./admin_manage/produkt_image/$produkt_image3' class='card-img-top' alt='$produkt_name'>
-                </div>
-            </div>
-        </div>
-          ";
-          }
+    
+                <!-- Inline JavaScript -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const sizeButtons = document.querySelectorAll('.size-btn');
+                        const addToCartButton = document.getElementById('addToCartBtn');
+                        let selectedSize = null;
+                        let selectedSizeId = null;
+    
+                        // Disable 'Add to Cart' button initially
+                        addToCartButton.disabled = true;
+                        addToCartButton.style.opacity = '0.5';
+                        addToCartButton.style.cursor = 'not-allowed';
+    
+                        sizeButtons.forEach(button => {
+                            button.addEventListener('click', function () {
+                                if (this.classList.contains('active')) {
+                                    this.classList.remove('active');
+                                    selectedSize = null;
+                                    selectedSizeId = null;
+                                } else {
+                                    sizeButtons.forEach(btn => btn.classList.remove('active'));
+                                    this.classList.add('active');
+                                    selectedSize = this.getAttribute('data-size');
+                                    selectedSizeId = this.getAttribute('data-size-id');
+                                }
+    
+                                if (selectedSize) {
+                                    addToCartButton.disabled = false;
+                                    addToCartButton.style.opacity = '1';
+                                    addToCartButton.style.cursor = 'pointer';
+                                } else {
+                                    addToCartButton.disabled = true;
+                                    addToCartButton.style.opacity = '0.5';
+                                    addToCartButton.style.cursor = 'not-allowed';
+                                }
+                            });
+                        });
+    
+                        // Add to Cart Logic
+                        addToCartButton.addEventListener('click', function (event) {
+                            event.preventDefault();
+    
+                            if (selectedSize && selectedSizeId) {
+                                const produktId = this.getAttribute('data-produkt-id');
+    
+                                const formData = new FormData();
+                                formData.append('produkt_id', produktId);
+                                formData.append('size', selectedSize);
+                                formData.append('size_id', selectedSizeId);
+    
+                                fetch('add_to_cart.php', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    alert(data.message);
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('Failed to add item to cart.');
+                                });
+                            }
+                        });
+    
+                        // Thumbnail Logic
+                        const thumbnails = document.querySelectorAll('.thumbnail');
+                        const featuredImage = document.getElementById('featured');
+    
+                        thumbnails.forEach(thumbnail => {
+                            thumbnail.addEventListener('mouseover', function () {
+                                thumbnails.forEach(thumb => thumb.classList.remove('thumbnail-active'));
+                                this.classList.add('thumbnail-active');
+                                featuredImage.src = this.src;
+                            });
+                        });
+                    });
+                </script>";
+            }
         }
     }
-      }
-    }
-
-    //cart function
-    function cart() {
-      if (isset($_GET['add_to_cart'])) {
-          global $con;
-          
-          // Get the logged-in user's ID
-          session_start();
-          if (!isset($_SESSION['id'])) {
-              echo "<script>alert('You need to log in to add products to the cart')</script>";
-              echo "<script>window.open('login.php','_self')</script>";
-              return;
-          }
-          
-          $user_id = $_SESSION['id'];
-          $get_produkt_id = $_GET['add_to_cart'];
-          
-          // Check if the product is already in the cart for this user
-          $select_query = "SELECT * FROM `cart` WHERE user_id = '$user_id' AND produkt_id = '$get_produkt_id'";
-          $result_query = mysqli_query($con, $select_query);
-          $num_of_rows = mysqli_num_rows($result_query);
-          
-          if ($num_of_rows > 0) {
-              echo "<script>alert('This product is already in your cart')</script>";
-              echo "<script>window.open('index.php','_self')</script>";
-          } else {
-              // Add the product to the cart
-              $insert_query = "INSERT INTO `cart` (user_id, produkt_id, quantity) VALUES ('$user_id', '$get_produkt_id', 1)";
-              $result_query = mysqli_query($con, $insert_query);
-              if ($result_query) {
-                  echo "<script>alert('Product added to your cart')</script>";
-                  echo "<script>window.open('index.php','_self')</script>";
-              } else {
-                  echo "<script>alert('Failed to add product to cart')</script>";
-              }
-          }
-      }
-  }
-
-function totalPrice() {
-  global $con;
-
- 
-  if (session_status() === PHP_SESSION_NONE) {
-      session_start();
-  }
-
-  $total = 0;
-
-  
-  if (!isset($_SESSION['id'])) {
-      echo 0; // If user is not logged in, total is 0
-      return;
-  }
-
-  $user_id = $_SESSION['id'];
-
-  
-  $cart_query = "SELECT * FROM `cart` WHERE user_id='$user_id'";
-  $result = mysqli_query($con, $cart_query);
-
-  
-  while ($row = mysqli_fetch_array($result)) {
-      $produkt_id = $row['produkt_id'];
-
+    
       
-      $price_query = "SELECT produkt_price FROM `produkt` WHERE produkt_id='$produkt_id'";
-      $result_price = mysqli_query($con, $price_query);
-
-      
-      while ($row_price = mysqli_fetch_array($result_price)) {
-          $produkt_price = (float)$row_price['produkt_price']; // Ensure the price is treated as a number
-          $total += $produkt_price;
-      }
-  }
-
-  echo $total; 
-}
+    
 
 
 function getCartProductNumber() {
@@ -350,6 +410,6 @@ function getCartProductNumber() {
       return 0; 
   }
 }
+        
 
 
-?>

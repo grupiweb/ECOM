@@ -23,52 +23,55 @@ include('functions/common_function.php');
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- css file -->
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="produkt_style.css">
+  
+ 
 
 </head>
 
 <body>
   <!-- navbar -->
-  <div class="container-fluid p-0">
+  <div class="container-fluid p-0 ">
   <?php
       include("./includes/header.php")
     ?>
-      <!-- thirrja e cart() -->
-       <?php
-       cart();
-       ?>
+      
 
-    <nav class="nabar navbar-expand-lg navbar-dark bg-secondary">
-      <ul class="navbar-nav me-auto">
-        <?php
-          if(!isset($_SESSION['id'])){
-            echo '
-              <li class="nav-item ms-3">
-                <a class="nav-link" href="#">Guest</a>
-              </li>
-              <li class="nav-item ms-3">
-                <a class="nav-link" href="login.php">Login</a>
-              </li>
-            ';
-          }else{
-            echo '
-              <li class="nav-item ms-3">
-                <a class="nav-link" href="logout.php">Logout</a>
-              </li>
-              <li class="nav-item ms-3">
-                <a class="nav-link" href="profile.php">Profile</a>
-              </li>
-              ';
-          }
-        ?>
-      </ul>
-    </nav>
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #ffce00;">
+  <ul class="navbar-nav me-auto">
+    <?php
+      if(!isset($_SESSION['id'])){
+        echo '
+          <li class="nav-item ms-3">
+            <a class="nav-link" href="#" style="color: black !important;">Guest</a>
+          </li>
+          <li class="nav-item ms-3">
+            <a class="nav-link" href="login.php" style="color: black !important;">Login</a>
+          </li>
+        ';
+      }else{
+        echo '
+          <li class="nav-item ms-3">
+            <a class="nav-link" href="logout.php" style="color: black !important;">Logout</a>
+          </li>
+          <li class="nav-item ms-3">
+            <a class="nav-link" href="profile.php" style="color: black !important;">Profile</a>
+          </li>
+        ';
+      }
+    ?>
+  </ul>
+</nav>
+
+
+
 
     <div class="bg-light">
       <h3 class="text-center">Hidden Store</h3>
       <p class="text-center">Welcome to the world of football jerseys</p>
     </div>
 
-    <div class="row px-1">
+    <div class="row px-1 mb-3">
       <div class="col-md-10">
         <div class="row">
          <?php
@@ -81,33 +84,31 @@ include('functions/common_function.php');
         </div>
       </div>
 
-      <div class="col-md-2 bg-secondary p-0">
-        <ul class="navbar-nav me-auto text-center">
-          <li class="nav-item bg-info">
-            <a class="nav-link text-light" href="#">
-              <h4>Ligat</h4>
-            </a>
-          </li>
-          <?php
-              getliga();
-          ?>
-
-        </ul>
-        <ul class="navbar-nav me-auto text-center">
-          <li class="nav-item bg-info">
-            <a class="nav-link text-light" href="#">
-              <h4>Ekipet</h4>
-            </a>
-          </li>
-          <?php
-            getekip();
-          ?>
-
-
-
-        </ul>
-      </div>
+      <div class="col-md-2  p-0 ">
+  <ul class="navbar-nav me-auto text-center" style="list-style-type: none; padding: 0; margin: 0;">
+    <li class="nav-item bg-info" style="height: 50px;">
+      <a class="nav-link text-light" href="#" style="background-color: #ffce00; color: black; display: flex; justify-content: center; align-items: center; height: 100%; padding-left: 0; padding-right: 0;">
+        <span style="font-size: 18px; font-weight: bold;color: black;">Ligat</span>
+      </a>
+    </li>
+    <?php
+        getliga();
+    ?>
+  </ul>
+  <ul class="navbar-nav me-auto text-center" style="list-style-type: none; padding: 0; margin: 0;">
+    <li class="nav-item bg-info" style="height: 50px;">
+      <a class="nav-link text-light" href="#" style="background-color: #ffce00; color: black; display: flex; justify-content: center; align-items: center; height: 100%; padding-left: 0; padding-right: 0;">
+        <span style="font-size: 18px; font-weight: bold;color: black;">Ekipet</span>
+      </a>
+    </li>
+    <?php
+      getekip();
+    ?>
+  </ul>
+</div>
     </div>
+
+
 
 
 

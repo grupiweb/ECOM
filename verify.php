@@ -112,6 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 });
             }
         </script>
+        
     </head>
     <body>
         <div class="wrapper">
@@ -123,15 +124,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     <span id="verificationCodeError" class="error-message"></span>
                 </div>
                 <div class="input-box button">
-                    <input type="submit" value="Verify">
-                </div>
-            </form>
-            <div class="input-box button">
-                <button class="input-box button" style="padding: 5px; border-radius: 5px;" id="resendEmail" onclick="resendVerificationEmail();">Resend Verification Email</button>
-            </div>
-            <div class="input-box button">
-                <a href="./logout.php">Log out</a>
-            </div>
+    <input type="submit" value="Verify" 
+           style="color: black; letter-spacing: 1px; border: none; background: #ffce00; cursor: pointer; text-align: center; display: inline-block; padding: 5px 10px; border-radius: 4px; margin: 5px 0;" 
+           onmouseover="this.style.background='black'; this.style.color='white';" 
+           onmouseout="this.style.background='#ffce00'; this.style.color='black';">
+</div>
+</form>
+<div class="input-box button">
+    <button class="input-box button" 
+            style="padding: 5px 10px; border-radius: 4px; background: #ffce00; color: black; border: none; cursor: pointer; margin: 5px 0;" 
+            id="resendEmail" 
+            onclick="resendVerificationEmail();" 
+            onmouseover="this.style.background='black'; this.style.color='white';" 
+            onmouseout="this.style.background='#ffce00'; this.style.color='black';">
+        Resend Verification Email
+    </button>
+</div>
+<div class="input-box button">
+    <a href="./logout.php" 
+       style="display: inline-block; color: black; text-decoration: none; letter-spacing: 1px; cursor: pointer; margin: 5px 0;" 
+       onmouseover="this.style.textDecoration='underline';" 
+       onmouseout="this.style.textDecoration='none';">
+        Log out
+    </a>
+</div>
+
             <p id="responseMessage"></p>
         </div>
     </body>

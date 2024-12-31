@@ -3,7 +3,7 @@
 session_start();
 
 // Include the database connection
-include('db_connection.php'); // Replace with your actual database connection file
+include('includes/connect.php'); // Replace with your actual database connection file
 
 // Check if the user is logged in
 if (!isset($_SESSION['id'])) {
@@ -41,4 +41,3 @@ if (isset($_POST['produkt_id']) && isset($_POST['size']) && isset($_POST['size_i
     echo json_encode(['status' => 'error', 'message' => 'Invalid data']);
 }
 ?>
-

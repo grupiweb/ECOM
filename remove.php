@@ -10,15 +10,15 @@ if (!isset($_SESSION['id'])) {
     exit;
 }
 
-// Check if the product ID is set
-if (isset($_GET['produkt_id'])) {
+// Check if the cart ID is set
+if (isset($_GET['cart_id'])) {
     include("includes/connect.php"); // Include database connection
 
-    $produkt_id = $_GET['produkt_id'];
-    $user_id = $_SESSION['id'];
+    $cart_id = $_GET['cart_id'];  // Get cart ID from the URL
+    $user_id = $_SESSION['id'];   // Get user ID from session
 
     // Remove the item from the cart
-    $delete_query = "DELETE FROM `cart` WHERE user_id = '$user_id' AND produkt_id = '$produkt_id'";
+    $delete_query = "DELETE FROM `cart` WHERE user_id = '$user_id' AND cart_item_id = '$cart_id'";
     $delete_result = mysqli_query($con, $delete_query);
 
     if ($delete_result) {
@@ -31,7 +31,7 @@ if (isset($_GET['produkt_id'])) {
         exit;
     }
 } else {
-    // Redirect to the cart page if no product ID is provided
+    // Redirect to the cart page if no cart ID is provided
     header("Location: cart.php");
     exit;
 }

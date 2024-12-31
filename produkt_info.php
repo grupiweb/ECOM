@@ -24,65 +24,227 @@ include('functions/common_function.php');
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- css file -->
   <link rel="stylesheet" href="style.css">
+  
+  <style>
+    
+ 
 
+/* Content Wrapper */
+#content-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
+}
+
+/* Columns for Layout */
+.column {
+    width: 600px;
+    padding: 10px;
+    text-align: center;
+}
+
+/* Featured Image */
+#featured {
+    max-width: 500px;
+    max-height: 600px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid black;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Thumbnails Wrapper */
+#thumbnails-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+/* Thumbnail Images */
+.thumbnail {
+    object-fit: cover;
+    max-width: 150px;
+    max-height: 80px;
+    cursor: pointer;
+    opacity: 0.5;
+    border: 2px solid black;
+    transition: 0.3s ease;
+}
+
+.thumbnail:hover,
+.thumbnail.active {
+    opacity: 1;
+    border-color: #007BFF; /* Highlight border when active */
+}
+
+/* Product Details */
+.column h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.column h3 {
+    font-size: 1.5rem;
+    color: #28a745;
+}
+
+.column p {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #555;
+    margin: 15px 0;
+}
+
+
+/* General Styling */
+.size-selector, .custom-selector {
+    margin: 15px 0;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+    font-size: 16px;
+}
+
+.sizes, .custom-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Button Styling */
+.size-btn, .custom-btn {
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+    color: #333;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.size-btn:hover, .custom-btn:hover {
+    background-color: #ffc107; /* Yellow hover effect */
+    color: #fff;
+    
+}
+
+.size-btn.out-of-stock {
+    background-color: #f1f1f1;
+    color: #ccc;
+    cursor: not-allowed;
+    border: 1px solid #ddd;
+}
+
+
+/* Default size button style */
+.size-btn {
+    background-color: #f0f0f0; /* Light gray */
+    color: #000; /* Black text */
+    border: 1px solid #ccc; /* Light gray border */
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Style for the selected (active) size button */
+.size-btn.active {
+    background-color: #ffc107; /* Yellow background */
+    color: #fff; /* White text */
+    border: 1px solid #ffc107; /* Yellow border */
+}
+
+/* Style for out-of-stock buttons */
+.size-btn.out-of-stock {
+    background-color: #e0e0e0; /* Gray background */
+    color: #a0a0a0; /* Light gray text */
+    cursor: not-allowed;
+    border: 1px solid #ccc; /* Light gray border */
+    pointer-events: none; /* Disable all interactions */
+}
+
+/* Remove hover effect for disabled buttons */
+.size-btn:disabled:hover,
+.size-btn.out-of-stock:hover {
+    background-color: #e0e0e0; /* Keep the same gray background */
+    color: #a0a0a0; /* Keep the same light gray text */
+    cursor: not-allowed;
+    border: 1px solid #ccc;
+}
+
+/* Default Add to Cart button style */
+.add-to-cart-btn {
+    background-color: #343a40; /* Dark background */
+    color: #fff; /* White text */
+    border: 1px solid #343a40; /* Matching border */
+    padding: 10px 20px;
+    text-transform: uppercase;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    cursor: default; /* Default cursor when not active */
+    text-decoration: none; /* Remove underline from link */
+}
+
+/* Add to Cart button hover effect */
+.add-to-cart-btn:hover {
+    background-color: #23272b; /* Slightly darker background on hover */
+    color: #ffce00; /* Highlighted text on hover */
+    border-color: #ffce00; /* Matching hover border */
+    cursor: pointer; /* Hand cursor on hover */
+}
+
+
+
+
+
+
+
+      </style>
 </head>
 
 <body>
   <!-- navbar -->
-  <div class="container-fluid p-0">
-    <nav class="navbar navbar-expand-lg bg-info">
-      <div class="container-fluid">
-        <img src="./images/logo.png" alt="" class="logo">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="index.php">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="display_all.php">Products</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Register</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Contact</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#"><i class="fa-solid fa-cart-shopping"><sup><?php
-                   echo getCartProductNumber();
-                ?></sup></i></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Total Price: <?php totalPrice() ?></a>
-            </li>
-
-          </ul>
-          <form class="d-flex" role="search" action="search_produkt.php" method="get">
-            <input class="form-control me-2" type="search" name="search_produkt" placeholder="Search" aria-label="Search">
-           <!-- <button class="btn btn-outline-light" type="submit">Search</button> -->
-            <input type="submit" value="search" name="search_produkt_data" class="btn btn-outline-light">
-          </form>
-        </div>
-      </div>
-    </nav>
-  <!-- thirrja e cart() -->
   <?php
-       cart();
-       ?>
-    <nav class="nabar navbar-expand-lg navbar-dark bg-secondary">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item ms-3">
-          <a class="nav-link" href="#">Guest</a>
-        </li>
-        <li class="nav-item ms-3">
-          <a class="nav-link" href="#">Login</a>
-        </li>
-      </ul>
-    </nav>
+      include("./includes/header.php")
+    ?>
+
+  <!-- thirrja e cart() -->
+  
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #ffce00;">
+  <ul class="navbar-nav me-auto">
+    <?php
+      if(!isset($_SESSION['id'])){
+        echo '
+          <li class="nav-item ms-3">
+            <a class="nav-link" href="#" style="color: black !important;">Guest</a>
+          </li>
+          <li class="nav-item ms-3">
+            <a class="nav-link" href="login.php" style="color: black !important;">Login</a>
+          </li>
+        ';
+      }else{
+        echo '
+          <li class="nav-item ms-3">
+            <a class="nav-link" href="logout.php" style="color: black !important;">Logout</a>
+          </li>
+          <li class="nav-item ms-3">
+            <a class="nav-link" href="profile.php" style="color: black !important;">Profile</a>
+          </li>
+        ';
+      }
+    ?>
+  </ul>
+</nav>
 
     <div class="bg-light">
       <h3 class="text-center">Hidden Store</h3>
@@ -106,32 +268,28 @@ include('functions/common_function.php');
         </div>
       </div>
 
-      <div class="col-md-2 bg-secondary p-0">
-        <ul class="navbar-nav me-auto text-center">
-          <li class="nav-item bg-info">
-            <a class="nav-link text-light" href="#">
-              <h4>Ligat</h4>
-            </a>
-          </li>
-          <?php
-              getliga();
-          ?>
-
-        </ul>
-        <ul class="navbar-nav me-auto text-center">
-          <li class="nav-item bg-info">
-            <a class="nav-link text-light" href="#">
-              <h4>Ekipet</h4>
-            </a>
-          </li>
-          <?php
-            getekip();
-          ?>
-
-
-
-        </ul>
-      </div>
+      <div class="col-md-2  p-0 ">
+  <ul class="navbar-nav me-auto text-center" style="list-style-type: none; padding: 0; margin: 0;">
+    <li class="nav-item bg-info" style="height: 50px;">
+      <a class="nav-link text-light" href="#" style="background-color: #ffce00; color: black; display: flex; justify-content: center; align-items: center; height: 100%; padding-left: 0; padding-right: 0;">
+        <span style="font-size: 18px; font-weight: bold;color: black;">Ligat</span>
+      </a>
+    </li>
+    <?php
+        getliga();
+    ?>
+  </ul>
+  <ul class="navbar-nav me-auto text-center" style="list-style-type: none; padding: 0; margin: 0;">
+    <li class="nav-item bg-info" style="height: 50px;">
+      <a class="nav-link text-light" href="#" style="background-color: #ffce00; color: black; display: flex; justify-content: center; align-items: center; height: 100%; padding-left: 0; padding-right: 0;">
+        <span style="font-size: 18px; font-weight: bold;color: black;">Ekipet</span>
+      </a>
+    </li>
+    <?php
+      getekip();
+    ?>
+  </ul>
+</div>
     </div>
 
 
